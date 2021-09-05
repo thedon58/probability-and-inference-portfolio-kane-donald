@@ -1,0 +1,17 @@
+---
+title: "Roulette Simulation"
+output: html_document
+---
+
+### Donald Kane
+### September 6, 2021
+
+# 1 Introduction
+The purpose of this blog post is to understand the Martingale strategy for playing roulette. The Martingale strategy tries to shift the odds that the player will always end up in the positive, something that casinos try their best to avoid. 
+# 1.1 Background
+Roulette is a game that dates back to 18th century France. It is a wheel that is made up of 38 spaces (0, 00, and 1 through 36) and 3 colors (18 red, 18 black, and 2 green to ensure that the odds are in the house's favor). The types of bets that a player can be broken down into 2 different categories, inside and outside. Inside bets are for betting on the numbers and can used to couple up to 4 numbers on a single bet. Outside bets are for betting on the color, low or high, even or odd, etc. 
+# 2 Methods
+
+# 3 Results
+
+# 4 Conclusions
