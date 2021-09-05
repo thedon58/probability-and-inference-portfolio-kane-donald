@@ -7,10 +7,116 @@ output: html_document
 ### September 6, 2021
 
 # 1 Introduction
-The purpose of this blog post is to understand the Martingale strategy for playing roulette. The Martingale strategy tries to shift the odds that the player will always end up in the positive, something that casinos try their best to avoid. 
+  The purpose of this blog post is to understand the Martingale strategy for playing roulette. The Martingale strategy tries to shift the odds that the player will always end up in the positive, something that casinos try their best to avoid. We will dive into this strategy to see whether it truly works and if changing variables can help the player win more money.
+
 # 1.1 Background
-Roulette is a game that dates back to 18th century France. It is a wheel that is made up of 38 spaces (0, 00, and 1 through 36) and 3 colors (18 red, 18 black, and 2 green to ensure that the odds are in the house's favor). The types of bets that a player can be broken down into 2 different categories, inside and outside. Inside bets are for betting on the numbers and can used to couple up to 4 numbers on a single bet. Outside bets are for betting on the color, low or high, even or odd, etc. 
+  Roulette is a game that dates back to 18th century France. It is a wheel that is made up of 38 spaces (0, 00, and 1 through 36) and 3 colors (18 red, 18 black, and 2 green to ensure that the odds are in the house's favor). The types of bets that a player can be broken down into 2 different categories, inside and outside. Inside bets are for betting on the numbers and can used to couple up to 4 numbers on a single bet. Outside bets are for betting on the color, low or high, even or odd, etc.
+  The Martingale strategy starts by placing a minimum bet (usually $1, but can change) on red. If the roulette wheel produces a red spin, the player collects their winnings and continues to bet one dollar on red. If the player loses their bet, they then double their bet until the roulette wheel hits red again. This strategy, when done correctly, ensures that the player will always end in the positive, but how much money can we win if we change the variables?
+
 # 2 Methods
+
+### Code
+
+```{r}
+library(dbplyr)
+one_play <- function(state){
+  
+  # Wager
+  proposed_wager <- ifelse(state$previous_win, 1, 2*state$previous_wager)
+  wager <- min(proposed_wager, state$M, state$B)
+  
+  # Spin of the wheel
+  red <- rbinom(1,1,18/38)
+  
+  # Update state
+  state$plays <- state$plays + 1
+  state$previous_wager <- wager
+  if(red){
+    # WIN
+    state$B <- state$B + wager
+    state$previous_win <- TRUE
+  }else{
+    # LOSE
+    state$B <- state$B - wager
+    state$previous_win <- FALSE
+  }
+  state
+}
+
+
+#' Stopping rule
+stop_play <- function(state){
+  if(state$B <= 0) return(TRUE)
+  if(state$plays >= state$L) return(TRUE)
+  if(state$B >= state$W) return(TRUE)
+  FALSE
+}
+
+
+#' Play roulette to either bankruptcy, success, or play limits
+#'
+#' @param B number, the starting budget
+#' @param W number, the budget threshold for successfully stoping
+#' @param L number, the maximum number of plays 
+#' @param M number, the casino wager limit
+#' @return A vector of budget values calculated after each play.
+one_series <- function(
+  B = 200
+  , W = 300
+  , L = 1000
+  , M = 100
+){
+  
+  # initial state
+  state <- list(
+    B = B
+    , W = W
+    , L = L
+    , M = M
+    , plays = 0
+    , previous_wager = 0
+    , previous_win = TRUE
+  )
+  
+  # vector to store budget over series of plays
+  budget <- rep(NA, L)
+  
+  # For loop of plays
+  for(i in 1:L){
+    new_state <- state %>% one_play
+    budget[i] <- new_state$B
+    if(new_state %>% stop_play){
+      return(budget[1:i])
+    }
+    state <- new_state
+  }
+  budget    
+}
+
+# helper function
+get_last <- function(x) x[length(x)] 
+
+
+# Simulation
+walk_out_money <- rep(NA, 10000)
+for(j in seq_along(walk_out_money)){
+  walk_out_money[j] <- one_series(B = 200, W = 300, L = 1000, M = 100) %>% get_last
+}
+```
+
+```{r}
+# Walk out money distribution
+hist(walk_out_money, breaks = 100)
+
+# Estimated probability of walking out with extra cash
+mean(walk_out_money > 200)
+
+# Estimated earnings
+mean(walk_out_money - 200)
+```
+
+
+
 
 # 3 Results
 
