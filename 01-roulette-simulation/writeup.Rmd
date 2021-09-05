@@ -3,6 +3,7 @@ title: "Roulette Simulation"
 output: html_document
 ---
 
+<<<<<<< HEAD
 ### Donald Kane
 ### September 6, 2021
 
@@ -15,3 +16,5 @@ Roulette is a game that dates back to 18th century France. It is a wheel that is
 # 3 Results
 
 # 4 Conclusions
+=======
+>>>>>>> 916af3151d9086777db0cfbd5288aa08a696696a
