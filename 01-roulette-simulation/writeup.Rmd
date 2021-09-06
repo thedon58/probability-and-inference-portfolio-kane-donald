@@ -54,12 +54,6 @@ stop_play <- function(state){
 
 
 #' Play roulette to either bankruptcy, success, or play limits
-#'
-#' @param B number, the starting budget
-#' @param W number, the budget threshold for successfully stoping
-#' @param L number, the maximum number of plays 
-#' @param M number, the casino wager limit
-#' @return A vector of budget values calculated after each play.
 one_series <- function(
   B = 200
   , W = 300
@@ -104,6 +98,17 @@ for(j in seq_along(walk_out_money)){
 }
 ```
 
+As we can see in the initial state:
+
+Parameter     | Description
+------------- | -------------
+B             | Initial Budget
+W             | Budget threshold for stopping
+L             | Maximum plays
+M             | Casino maximum
+
+# 3 Results
+
 ```{r}
 # Walk out money distribution
 hist(walk_out_money, breaks = 100)
@@ -116,8 +121,6 @@ mean(walk_out_money - 200)
 ```
 
 
-
-
-# 3 Results
-
 # 4 Conclusions
+
+Based on the simulations ran, if we were to use the Martingale strategy while playing roulette we would have a more than 50% chance of walking out of the casino with extra cash. This proves that the Martingale strategy works and that we can successfully shift the odds in favor of the player.
