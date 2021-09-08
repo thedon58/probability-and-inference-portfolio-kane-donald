@@ -1,0 +1,2 @@
+## rbinom(n,size,probability)
+
