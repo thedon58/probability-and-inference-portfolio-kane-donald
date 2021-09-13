@@ -8,8 +8,8 @@ output:
     toc_depth: 3
     toc_float: yes
 ---
-# Donald Kane
-# September 13, 2021
+Donald Kane
+September 13, 2021
 
 # Introduction
 
@@ -77,12 +77,16 @@ head(output)
 
 # Results
 
+### Relative Error
+
   Relative error is defined as the absolute value of the observed probability we got from the simulation (p-hat) minus the actual probability and then divided by the actual probability. Relative probability can be better explained as the percent difference in actual vs. observed ((new-old)/old)x100. So for relative probability, we want to see, in percent terms, how far off our p-hat is from the actual probability as replicates increase.
 
 ``` {r}
 ggplot(output, aes(x=N, y=rel_error)) + geom_line(aes(col=P)) + scale_x_continuous(trans='log2') + ggtitle("Relative Error")
 
 ```
+
+### Absolute Error
 
   Absolute error is more easily understood than relative error. It is simply the absolute value of the difference of our observed probability from the simulations and the true probability. With this value, we want to see how far our observed probability is from its true probability.
 
