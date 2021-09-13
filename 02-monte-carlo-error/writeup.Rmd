@@ -93,4 +93,4 @@ ggplot(output, aes(x=N, y=abs_error)) + geom_line(aes(col=P)) + scale_x_continuo
 
 # Conclusions
 
-The Monte Carlo experiment is used to approximate results, but in this experiment we took it one step further and observed the error. We wanted to see how changing the number of replicates would impact our relative and absolute errors. Given that we used 5 different probabilities, we were able to show how increasing the number of replicates would "squeeze" our graphs to a "near zero" error margin between the observed probability and actual probability due to the law of large numbers.
+The Monte Carlo experiment is used to approximate results, but in this experiment we took it one step further and observed the error. We wanted to see how changing the number of replicates would impact our relative and absolute errors. Given that we used 5 different probabilities, we were able to show how increasing the number of replicates would "squeeze" our graphs to a "near zero" error margin between the observed probability and actual probability due to the Law of Large Numbers.
