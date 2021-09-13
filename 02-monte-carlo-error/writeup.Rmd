@@ -1,4 +1,88 @@
 ---
-title: "writeup"
+title: "Monte Carlo Error"
 output: html_document
 ---
+### Donald Kane
+### September 13, 2021
+
+# 1 Introduction
+
+  When making decisions in life, we always weigh the odds. Whether it is something that you can actually measure, like gambling, or something you do not know the odds of at all, there is always a probability involved with that event. When finding the true probability of something, replication is key. If something has a 50% chance of happening, it does not always occur 50% of the time, but if you are able to replicate the event many times, it will become closer to happening half the time while reducing the amount of error.
+
+# 1.1 Background
+
+  Monte. Carlo. Error...
+  When heard for the first time, I thought we were talking about Monaco and that always brings up nice memories of the Monaco Grand Prix (Daniel Ricciardo 2018), but that is not the case. The Monte Carlo method approximates results and is used to show the relationship between actual probability and the simulation's relative and absolute errors. It is a fun and different way of proving the law of large numbers because as the amount of simulations increase, both errors decrease.
+
+# 2 Methods
+
+### Create Data Frame
+
+First, we need to load in our packages:
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+  First step, we need to create a data frame to store the values of N, P, absolute error, and relative error.
+
+| Variable | Description 
+|:---:|:---:|
+|  N  |   # or replicates 
+|  P  |   Probability 
+|  abs_error  |   p-hat - p 
+|  rel_error  |   p-hat - p / p 
+
+
+```{r}
+# Create data frame
+
+output <- expand.grid(
+  N = 2^c(2:15),
+  P = c(0.01, 0.05, 0.10, 0.25, 0.50),
+  abs_error = NA,
+  rel_error = NA,
+  KEEP.OUT.ATTRS = FALSE
+)
+```
+
+### Create For Loop
+
+  Next, we need to create a loop to run the simulations. In doing this, we are able to fill in the values for the absolute and relative errors to our data frame. This will allow us to have a complete data frame to be able to graph our results to show that as the number of replicates increases, both errors will diminish.
+
+``` {r}
+# For loop to run simulations
+r <- 10000
+for(i in 1:nrow(output)) {
+  p <- output$P[i]
+  n <- output$N[i]
+  p_hat <- rbinom(r,n,p)/n
+  output[i, "abs_error"] <- mean(abs(p_hat - p)) 
+  output[i, "rel_error"] <- mean(abs(p_hat-p)/p) 
+}
+```
+
+Just to show that our loop worked, here we used the head() function to show the first 5 rows.
+
+``` {r}
+head(output)
+```
+
+# 3 Results
+
+  Relative error is defined as the observed probability we got from the simulation (p-hat) minus the actual probability and then divided by the actual probability. Relative probability can be better explained as the percent difference in actual vs. observed ((new-old)/old)x100. So for relative probability, we want to see, in percent terms, how far off our p-hat is from the actual probability as replicates increase.
+
+``` {r}
+ggplot(output, aes(x=N, y=rel_error)) + geom_line(aes(col=P)) + scale_x_continuous(trans='log2') + ggtitle("Relative Error")
+
+```
+
+
+
+``` {r}
+ggplot(output, aes(x=N, y=abs_error)) + geom_line(aes(col=P)) + scale_x_continuous(trans='log2') + ggtitle("Absolute Error")
+
+```
+# 4 Conclusions
+
