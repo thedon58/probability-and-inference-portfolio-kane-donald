@@ -29,6 +29,9 @@ First, we need to load in our packages:
 ```{r, message=FALSE}
 library(ggplot2)
 library(dplyr)
+install.packages("remotes")
+library("remotes")
+remotes::install_github("thomasgstewart/tgsify")
 ```
 
   First step, we need to create a data frame to store the values of N, P, absolute error, and relative error.

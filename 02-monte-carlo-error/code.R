@@ -33,7 +33,7 @@ head(output)
 
 output %>%
   mutate(x = log2(N)) %>%
-  mutate(abs_error = log10(abs_error)) %>%
+  mutate(abs_error = log10(rel_error)) %>%
   mutate(col = as.factor(P) %>% as.numeric) %>%
   plot_setup(abs_error ~ x, c(0,15)) %>%
   split(.$P) %>%
@@ -47,7 +47,9 @@ box()
 
 ggplot(output, aes(x=N, y=abs_error)) + geom_line(aes(col=P)) + scale_x_continuous(trans='log2')
 
-
+install.packages("remotes")
+library("remotes")
+remotes::install_github("thomasgstewart/tgsify")
 
 
 
