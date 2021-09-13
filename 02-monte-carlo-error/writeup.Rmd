@@ -1,21 +1,26 @@
 ---
 title: "Monte Carlo Error"
-fontsize: 17pt
-output: html_document
+output:
+  html_document:
+    code_folding: hide
+    toc: yes
+    number_sections: yes
+    toc_depth: 3
+    toc_float: yes
 ---
-### Donald Kane
-### September 13, 2021
+# Donald Kane
+# September 13, 2021
 
-# 1 Introduction
+# Introduction
 
   When making decisions in life, we always weigh the odds. Whether it is something that you can actually measure, like gambling, or something you do not know the odds of at all, there is always a probability involved with that event. When finding the true probability of something, replication is key. If something has a 50% chance of happening, it does not always occur 50% of the time, but if you are able to replicate the event many times, it will become closer to happening half the time while reducing the amount of error.
 
-# 1.1 Background
+# Background
 
   Monte. Carlo. Error...
   When heard for the first time, I thought we were talking about Monaco and that always brings up nice memories of the Monaco Grand Prix (Daniel Ricciardo 2018), but that is not the case. The Monte Carlo method approximates results and is used to show the relationship between actual probability and the simulation's relative and absolute errors. It is a fun and different way of proving the law of large numbers because as the amount of simulations increase, both errors decrease.
 
-# 2 Methods
+# Methods
 
 ### Create Data Frame
 
@@ -70,7 +75,7 @@ Just to show that our loop worked, here we used the head() function to show the 
 head(output)
 ```
 
-# 3 Results
+# Results
 
   Relative error is defined as the absolute value of the observed probability we got from the simulation (p-hat) minus the actual probability and then divided by the actual probability. Relative probability can be better explained as the percent difference in actual vs. observed ((new-old)/old)x100. So for relative probability, we want to see, in percent terms, how far off our p-hat is from the actual probability as replicates increase.
 
@@ -86,6 +91,6 @@ ggplot(output, aes(x=N, y=abs_error)) + geom_line(aes(col=P)) + scale_x_continuo
 
 ```
 
-# 4 Conclusions
+# Conclusions
 
 The Monte Carlo experiment is used to approximate results, but in this experiment we took it one step further and observed the error. We wanted to see how changing the number of replicates would impact our relative and absolute errors. Given that we used 5 different probabilities, we were able to show how increasing the number of replicates would "squeeze" our graphs to a "near zero" error margin between the observed probability and actual probability due to the law of large numbers.
