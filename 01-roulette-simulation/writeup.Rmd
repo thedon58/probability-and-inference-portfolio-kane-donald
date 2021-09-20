@@ -15,7 +15,7 @@ output: html_document
 
 # 2 Methods
 
-### Code
+### Computer Simulation
 
 ```{r}
 library(dbplyr)
@@ -42,7 +42,11 @@ one_play <- function(state){
   }
   state
 }
+```
 
+Here, we need to create a function called *one_play* that will allow us to run a simulation of one roulette spin. We create the simulation of the roulette wheel landing on red by using the *rbinom* function, a function that randomly assigns wins and loses using the odds of 18/38 (the true odds landing on red.) We then use this function to test whether or not we win the round, or if we need to double the bet on the next roll.
+
+``` {r}
 
 #' Stopping rule
 stop_play <- function(state){
@@ -86,7 +90,11 @@ one_series <- function(
   }
   budget    
 }
+```
 
+
+
+``` {r}
 # helper function
 get_last <- function(x) x[length(x)] 
 
@@ -121,6 +129,8 @@ mean(walk_out_money - 200)
 ```
 
 
-# 4 Conclusions
+# 4 Changing Parameters
+
+# 5 Conclusions
 
 Based on the simulations ran, if we were to use the Martingale strategy while playing roulette we would have a more than 50% chance of walking out of the casino with extra cash. This proves that the Martingale strategy works and that we can successfully shift the odds in favor of the player.
