@@ -122,10 +122,14 @@ for(j in seq_along(walk_out_money)){
 ```{r}
 # Walk out money distribution
 hist(walk_out_money, breaks = 100)
+```
 
+``` {r}
 # Estimated probability of walking out with extra cash
 mean(walk_out_money > 200)
+```
 
+```{r}
 # Estimated earnings
 mean(walk_out_money - 200)
 ```
