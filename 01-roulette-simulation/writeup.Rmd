@@ -44,7 +44,7 @@ one_play <- function(state){
 }
 ```
 
-Here, we need to create a function called *one_play* that will allow us to run a simulation of one roulette spin. We create the simulation of the roulette wheel landing on red by using the *rbinom* function, a function that randomly assigns wins and loses using the odds of 18/38 (the true odds landing on red.) We then use this function to test whether or not we win the round, or if we need to double the bet on the next roll.
+Here, we need to create a function called *one_play* that will allow us to run a simulation of one roulette spin. Using *proposed_wager*, we are able to show that if we win, we continue to gamble $1, but if we lose, we double the bet until we win again. We create the simulation of the roulette wheel landing on red by using the *rbinom* function, a function that randomly assigns wins and loses using the odds of 18/38 (the true odds landing on red.) We then use this function to test whether or not we win the round, or if we need to double the bet on the next roll.
 
 ``` {r}
 
@@ -92,7 +92,16 @@ one_series <- function(
 }
 ```
 
+Now that we have a function that allows us to "spin" the roulette wheel once, we need another function that allows us to simulate the Martingale strategy. We set parameters (described below) to allow us to "sit down" at the table and start gambling. 
 
+As we can see in the initial state:
+
+Parameter     | Description
+------------- | -------------
+B             | Initial Budget
+W             | Budget threshold for stopping
+L             | Maximum plays
+M             | Casino maximum
 
 ``` {r}
 # helper function
@@ -106,14 +115,7 @@ for(j in seq_along(walk_out_money)){
 }
 ```
 
-As we can see in the initial state:
 
-Parameter     | Description
-------------- | -------------
-B             | Initial Budget
-W             | Budget threshold for stopping
-L             | Maximum plays
-M             | Casino maximum
 
 # 3 Results
 
