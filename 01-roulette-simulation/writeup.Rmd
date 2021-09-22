@@ -143,7 +143,7 @@ mean(walk_out_money - 200)
 
 When we ran the above simulation, we set the parameters at a \$200 budget, a \$300 winnings threshold, 1000 plays, and with a maximum casino bet at \$100. These numbers are fairly standard for anyone walking into a casino, we want to see whether one change can make a difference in how much money we walk away from the table with.
 
-## Starting Budget
+### Starting Budget
 
 Here, we will test whether increasing the starting budget will increase our probability of walking out with extra cash. We will increase B to \$500 and W to \$600 to keep the \$100 winnings goal.
 
@@ -158,7 +158,7 @@ mean(walk_out_money > 500)
 
 Holding all other parameters equal, we shockingly have much better odds of walking out with extra cash when we increased the starting budget from \$200 to \$500. 
 
-## Winnings Threshold
+### Winnings Threshold
 
 We can also test if changing the winnings threshold will affect our odds of walking away with extra cash, so here we changed the winnings threshold parameter, W, to \$250 to represent a \$50 winnings goal.
 ```{r}
@@ -172,7 +172,7 @@ mean(walk_out_money > 200)
 
 Unsurprisingly, we see a noticeable increase in probability of walking out with extra cash when we decreased the winnings goal in half.
 
-## Number of Plays
+### Number of Plays
 
 ```{r}
 walk_out_money <- rep(NA, 10000)
@@ -181,7 +181,7 @@ for(j in seq_along(walk_out_money)){
 }
 ```
 
-## Casino Maximum Bet
+### Casino Maximum Bet
 
 ```{r}
 walk_out_money <- rep(NA, 10000)
