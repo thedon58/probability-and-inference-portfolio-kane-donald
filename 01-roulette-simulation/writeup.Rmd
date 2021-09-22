@@ -119,10 +119,6 @@ for(j in seq_along(walk_out_money)){
 ```
 
 
-# 2.1 Limitations
-
-
-
 # 3 Results
 
 ```{r}
@@ -140,11 +136,60 @@ mean(walk_out_money > 200)
 mean(walk_out_money - 200)
 ```
 
+# 3.1 Limitations
+
 
 # 4 Changing Parameters
 
-When we ran the above simulation, we set the parameters at a \$200 budget, a \$300 winnings threshold, 1000 plays, and with a maximum casino bet at \$100.
+When we ran the above simulation, we set the parameters at a \$200 budget, a \$300 winnings threshold, 1000 plays, and with a maximum casino bet at \$100. These numbers are fairly standard for anyone walking into a casino, we want to see whether one change can make a difference in how much money we walk away from the table with.
+
+## Starting Budget
+
+Here, we will test whether increasing the starting budget will increase our probability of walking out with extra cash. We will increase B to \$500 and W to \$600 to keep the \$100 winnings goal.
+
+```{r}
+walk_out_money <- rep(NA, 10000)
+for(j in seq_along(walk_out_money)){
+  walk_out_money[j] <- one_series(B = 500, W = 600, L = 1000, M = 100) %>% get_last
+}
+
+mean(walk_out_money > 500)
+```
+
+Holding all other parameters equal, we shockingly have much better odds of walking out with extra cash when we increased the starting budget from \$200 to \$500. 
+
+## Winnings Threshold
+
+We can also test if changing the winnings threshold will affect our odds of walking away with extra cash, so here we changed the winnings threshold parameter, W, to \$250 to represent a \$50 winnings goal.
+```{r}
+walk_out_money <- rep(NA, 10000)
+for(j in seq_along(walk_out_money)){
+  walk_out_money[j] <- one_series(B = 200, W = 250, L = 1000, M = 100) %>% get_last
+}
+mean(walk_out_money > 200)
+
+```
+
+Unsurprisingly, we see a noticeable increase in probability of walking out with extra cash when we decreased the winnings goal in half.
+
+## Number of Plays
+
+```{r}
+walk_out_money <- rep(NA, 10000)
+for(j in seq_along(walk_out_money)){
+  walk_out_money[j] <- one_series(B = 200, W = 300, L = 1000, M = 100) %>% get_last
+}
+```
+
+## Casino Maximum Bet
+
+```{r}
+walk_out_money <- rep(NA, 10000)
+for(j in seq_along(walk_out_money)){
+  walk_out_money[j] <- one_series(B = 200, W = 300, L = 1000, M = 100) %>% get_last
+}
+```
 
 # 5 Conclusions
 
-Based on the simulations ran, if we were to use the Martingale strategy while playing roulette we would have a more than 50% chance of walking out of the casino with extra cash. This proves that the Martingale strategy works and that we can successfully shift the odds in favor of the player.
+Based on the simulations ran, if we were to use the Martingale strategy while playing roulette 
