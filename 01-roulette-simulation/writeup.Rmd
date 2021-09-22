@@ -55,8 +55,11 @@ stop_play <- function(state){
   if(state$B >= state$W) return(TRUE)
   FALSE
 }
+```
 
+We use this *stop_play* function to tell the simulation when to stop based on multiple factors. "W" represents that the player has W dollars and the gambling must end, "L" represents the amount of roulette wheel spins limit that the player sets for themselves, and "B" represents that the player has gone bankrupt and must walk away from gambling.
 
+```{r}
 #' Play roulette to either bankruptcy, success, or play limits
 one_series <- function(
   B = 200
@@ -114,6 +117,9 @@ for(j in seq_along(walk_out_money)){
   walk_out_money[j] <- one_series(B = 200, W = 300, L = 1000, M = 100) %>% get_last
 }
 ```
+
+
+# 2.1 Limitations
 
 
 
