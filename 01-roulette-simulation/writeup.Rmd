@@ -138,6 +138,8 @@ mean(walk_out_money - 200)
 
 # 3.1 Limitations
 
+random
+invalid parameters
 
 # 4 Changing Parameters
 
