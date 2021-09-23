@@ -95,6 +95,8 @@ one_series <- function(
 }
 ```
 
+Our *one_series* function is where we define the Martingale strategy. Inside the function we set the parameters (described in table below). We also set the initial state of the series so that we can define our values. It also allows us to set the table for us to begin gambling by setting plays to 0, our previous wager to 0, and previous win to TRUE, so that *proposed_wager* (described above) can begin our betting with \$1. We use the *budget* vector to store our Martingale strategy series of plays. We then create a loop that allows us to simulate one round of gambling using the Martingale strategy and it only stops when we run out of money, hit the 1000 play limit, hit the casino maximum bet, or hit our winnings threshold.
+
 Now that we have a function that allows us to "spin" the roulette wheel once, we need another function that allows us to simulate the Martingale strategy. We set parameters (described below) to allow us to "sit down" at the table and start gambling. 
 
 As we can see in the initial state:
@@ -118,6 +120,7 @@ for(j in seq_along(walk_out_money)){
 }
 ```
 
+The code above is our actual simulation. We use the loop `for(j in seq_along(walk_out_money))` to simulate using the Martingale strategy until each stopping point 10000 times. Our default settings are that we start with \$200, our winnings threshold is \$300 (\$200 that we started with plus \$100 in winnings), a maximum plays limit at 1000 per round, and a casino maximum bet of \$100.
 
 # 3 Results
 
@@ -138,8 +141,21 @@ mean(walk_out_money - 200)
 
 # 3.1 Limitations
 
-random
-invalid parameters
+Although we believe that these simulations can help us predict how well the Martingale strategy will work while playing roulette, there are some concerns and limitations on the simulation. For one, this simulation ran in Rstudio uses randomly drawn numbers from the *rbinom* function we described above. It is completely random and if you have ever spent time at a roulette table, using a simulated wheel spin is not realistic. This is only a slight limitation as the only thing better than using a simulated wheel spin would be to take a real roulette wheel and spin it thousands of times and record your answers. Another limitation is that you can use any value for the parameters inside the simulation you would like, even negative values. You can run this simulation with -\$1,000 if you would like and it would give your results with something that is not realistic.
+
+### Example
+
+Note that we will use -\$1000 for the initial budget *B* and calculate our walk out money distribution. Although the histogram below did its job in showing us the correct distribution of our walk out money, it is impossible to start with an initial budget of -\$1,000.
+
+```{r}
+walk_out_money <- rep(NA, 10000)
+for(j in seq_along(walk_out_money)){
+  walk_out_money[j] <- one_series(B = -1000, W = 300, L = 1000, M = 100) %>% get_last
+}
+
+# Walk out money distribution
+hist(walk_out_money, breaks = 100)
+```
 
 # 4 Changing Parameters
 
@@ -163,6 +179,7 @@ Holding all other parameters equal, we shockingly have much better odds of walki
 ### Winnings Threshold
 
 We can also test if changing the winnings threshold will affect our odds of walking away with extra cash, so here we changed the winnings threshold parameter, W, to \$250 to represent a \$50 winnings goal.
+
 ```{r}
 walk_out_money <- rep(NA, 10000)
 for(j in seq_along(walk_out_money)){
