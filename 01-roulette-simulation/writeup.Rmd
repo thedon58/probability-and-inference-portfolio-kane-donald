@@ -44,7 +44,7 @@ one_play <- function(state){
 }
 ```
 
-Here, we need to create a function called *one_play* that will allow us to run a simulation of one roulette spin. Using *proposed_wager*, we are able to show that if we win, we continue to gamble $1, but if we lose, we double the bet until we win again. We create the simulation of the roulette wheel landing on red by using the *rbinom* function, a function that randomly assigns wins and loses using the odds of 18/38 (the true odds landing on red.) We then use this function to test whether or not we win the round, or if we need to double the bet on the next roll.
+Here, we need to create a function called *one_play* that will allow us to run a simulation of one roulette spin. Using *proposed_wager*, we are able to show that if we win, we continue to gamble $1, but if we lose, we double the bet until we win again. We create the simulation of the roulette wheel landing on red by using the *rbinom* function, a function that randomly assigns wins and loses using the odds of 18/38 (the true odds landing on red.) We then use this function to test whether or not we win the round, or if we need to double the bet on the next roll. We also need to update the state of the game after every wheel spin, so we see above in the chunk of code denoted with `# Update state` that shows us if we land on red we win, so we add our wager to our initial budget and *previous_win* is TRUE. That is foll0wed by an else statement that represents us losing, so it deducts the wager from the initial budget and sets *previous_win* to FALSE and doubles the wager.
 
 ### Stopping Rule
 
@@ -128,24 +128,41 @@ for(j in seq_along(walk_out_money)){
 
 The code above is our actual simulation. We use the loop `for(j in seq_along(walk_out_money))` to simulate using the Martingale strategy until each stopping point 10000 times. Our default settings are that we start with \$200, our winnings threshold is \$300 (\$200 that we started with plus \$100 in winnings), a maximum plays limit at 1000 per round, and a casino maximum bet of \$100. Our *walk_out_money* value stores the amount of cash we walk away from the table with in each simulation, \$0 (we ran out of money) or \$300 (we hit our winnings threshold.) This value is very important when computing how well the Martingale strategy will work when gambling at a roulette table.
 
-# 3 Results
+### Average Plays in Martingale Strategy
 
 ```{r}
-# Walk out money distribution
+
+total_plays <- rep(NA, 10000)
+for(j in seq_along(walk_out_money)){
+  total_plays[j] <- length(one_series(B = 200, W = 300, L = 1000, M = 100)) %>%
+    get_last}
+
+mean(total_plays)
+```
+
+One important factor when considering whether to use the Martingale strategy is to consider the average number of roulette wheel spins you need to hit your winnings goal or go bankrupt. To get the average number of plays per round of using the Martingale strategy, I took the simulation code (above) and tweaked a few things. I changed *walk_out_money* that previously stored our ending values to *total_plays* and used the *length()* function to store the total number of plays inside each *one_series* simulation inside the loop. As we can see above, we expect to see around 200 wheel spins before one of our four stopping rules come into play. 
+
+# 3 Results
+
+### Walk Out Money Distribution
+
+```{r}
 hist(walk_out_money, breaks = 100)
 ```
 
 Using our *walk_out_money* value (described above) we want to see the distribution of our simulations and see how well we did. The histogram above looks like a goal post, but it is correct because the only values we can achieve (because the low starting budget and high number of maximum plays) are losing everything and walking out with \$0 or hitting our winnings threshold and walking away with \$300 (\$100 in earnings plus the \$200 initial budget.)
 
+### Estimated Probability of Walking Out With Extra Cash
+
 ``` {r}
-# Estimated probability of walking out with extra cash
 mean(walk_out_money > 200)
 ```
 
 Here, we use the *mean()* function to test the probability of walking away with extra cash. We must use `walk_out_money > 200`, specifically the "> 200" to return values of *TRUE* or *FALSE* for all of our ending values stored in *walk_out_money*. Based on our results and using the parameters we set, we have a slightly better than 50% chance of walking away with extra cash.
 
+### Estimated Earnings
+
 ```{r}
-# Estimated earnings
 mean(walk_out_money - 200)
 ```
 
