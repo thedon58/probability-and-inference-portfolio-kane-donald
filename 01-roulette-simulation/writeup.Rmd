@@ -15,7 +15,7 @@ output: html_document
 
 # 2 Methods
 
-### Computer Simulation
+### Simulating One Wheel Spin of Roulette
 
 ```{r}
 library(dbplyr)
@@ -46,6 +46,8 @@ one_play <- function(state){
 
 Here, we need to create a function called *one_play* that will allow us to run a simulation of one roulette spin. Using *proposed_wager*, we are able to show that if we win, we continue to gamble $1, but if we lose, we double the bet until we win again. We create the simulation of the roulette wheel landing on red by using the *rbinom* function, a function that randomly assigns wins and loses using the odds of 18/38 (the true odds landing on red.) We then use this function to test whether or not we win the round, or if we need to double the bet on the next roll.
 
+### Stopping Rule
+
 ``` {r}
 
 #' Stopping rule
@@ -58,6 +60,8 @@ stop_play <- function(state){
 ```
 
 We use this *stop_play* function to tell the simulation when to stop based on multiple factors. "W" represents that the player has W dollars and the gambling must end, "L" represents the amount of roulette wheel spins limit that the player sets for themselves, and "B" represents that the player has gone bankrupt and must walk away from gambling.
+
+### Setting the Martingale Strategy
 
 ```{r}
 #' Play roulette to either bankruptcy, success, or play limits
@@ -108,6 +112,8 @@ W             | Budget threshold for stopping
 L             | Maximum plays
 M             | Casino maximum
 
+### Running a Simulation
+
 ``` {r}
 # helper function
 get_last <- function(x) x[length(x)] 
@@ -120,7 +126,7 @@ for(j in seq_along(walk_out_money)){
 }
 ```
 
-The code above is our actual simulation. We use the loop `for(j in seq_along(walk_out_money))` to simulate using the Martingale strategy until each stopping point 10000 times. Our default settings are that we start with \$200, our winnings threshold is \$300 (\$200 that we started with plus \$100 in winnings), a maximum plays limit at 1000 per round, and a casino maximum bet of \$100.
+The code above is our actual simulation. We use the loop `for(j in seq_along(walk_out_money))` to simulate using the Martingale strategy until each stopping point 10000 times. Our default settings are that we start with \$200, our winnings threshold is \$300 (\$200 that we started with plus \$100 in winnings), a maximum plays limit at 1000 per round, and a casino maximum bet of \$100. Our *walk_out_money* value stores the amount of cash we walk away from the table with in each simulation, \$0 (we ran out of money) or \$300 (we hit our winnings threshold.) This value is very important when computing how well the Martingale strategy will work when gambling at a roulette table.
 
 # 3 Results
 
@@ -129,19 +135,25 @@ The code above is our actual simulation. We use the loop `for(j in seq_along(wal
 hist(walk_out_money, breaks = 100)
 ```
 
+Using our *walk_out_money* value (described above) we want to see the distribution of our simulations and see how well we did. The histogram above looks like a goal post, but it is correct because the only values we can achieve (because the low starting budget and high number of maximum plays) are losing everything and walking out with \$0 or hitting our winnings threshold and walking away with \$300 (\$100 in earnings plus the \$200 initial budget.)
+
 ``` {r}
 # Estimated probability of walking out with extra cash
 mean(walk_out_money > 200)
 ```
+
+Here, we use the *mean()* function to test the probability of walking away with extra cash. We must use `walk_out_money > 200`, specifically the "> 200" to return values of *TRUE* or *FALSE* for all of our ending values stored in *walk_out_money*. Based on our results and using the parameters we set, we have a slightly better than 50% chance of walking away with extra cash.
 
 ```{r}
 # Estimated earnings
 mean(walk_out_money - 200)
 ```
 
+Now that we have seen our walk out money distribution and the probability of walking away from the table with extra cash, we want to compute our estimated earnings. Using the *mean()* function once again, we will not subtract our initial budget of \$200 from the earnings to "transform" the *walk_out_money* values into pure winnings or losses. When we perform this, we can see an average loss of around \$45, but we did not see this value anywhere, as the distribution only showed us with walkout money values of \$300 or \$0. There are some limitations to this simulation.
+
 # 3.1 Limitations
 
-Although we believe that these simulations can help us predict how well the Martingale strategy will work while playing roulette, there are some concerns and limitations on the simulation. For one, this simulation ran in Rstudio uses randomly drawn numbers from the *rbinom* function we described above. It is completely random and if you have ever spent time at a roulette table, using a simulated wheel spin is not realistic. This is only a slight limitation as the only thing better than using a simulated wheel spin would be to take a real roulette wheel and spin it thousands of times and record your answers. Another limitation is that you can use any value for the parameters inside the simulation you would like, even negative values. You can run this simulation with -\$1,000 if you would like and it would give your results with something that is not realistic.
+Although we believe that these simulations can help us predict how well the Martingale strategy will work while playing roulette, there are some concerns and limitations on the simulation. We touched on this one above, but when the simulation is set with a relatively low initial budget and a high maximum number of plays, we will only see walk out money values of \$0 or the winnings threshold. When this is the case, we find our estimated earnings to be unrealistic. For example, in the simulation above, we got an estimated earnings of around -\$45, but the distribution shows us that this is impossible to obtain. Another problem we could run into is that this simulation ran in Rstudio uses randomly drawn numbers from the *rbinom* function we described above. It is completely random and if you have ever spent time at a roulette table, using a simulated wheel spin is not realistic. This is only a slight limitation as the only thing better than using a simulated wheel spin would be to take a real roulette wheel and spin it thousands of times and record your answers. Another limitation is that you can use any value for the parameters inside the simulation you would like, even negative values. You can run this simulation with -\$1,000 if you would like and it would give your results with something that is not realistic.
 
 ### Example
 
@@ -186,29 +198,25 @@ for(j in seq_along(walk_out_money)){
   walk_out_money[j] <- one_series(B = 200, W = 250, L = 1000, M = 100) %>% get_last
 }
 mean(walk_out_money > 200)
-
 ```
 
-Unsurprisingly, we see a noticeable increase in probability of walking out with extra cash when we decreased the winnings goal in half.
+Unsurprisingly, we see a noticeable increase in probability of walking out with extra cash when we decreased the winnings threshold in half.
 
 ### Number of Plays
 
-```{r}
-walk_out_money <- rep(NA, 10000)
-for(j in seq_along(walk_out_money)){
-  walk_out_money[j] <- one_series(B = 200, W = 300, L = 1000, M = 100) %>% get_last
-}
-```
-
-### Casino Maximum Bet
+I touched on this before, but the high number of plays that we used above was the biggest issue in our simulation. We received values that were only \$0 or the winnings threshold, so I wanted to test what would happen if put the maximum number of plays value at something realistic. I set the value to 100 plays and see the distribution is more representative of true outcomes.
 
 ```{r}
 walk_out_money <- rep(NA, 10000)
 for(j in seq_along(walk_out_money)){
-  walk_out_money[j] <- one_series(B = 200, W = 300, L = 1000, M = 100) %>% get_last
+  walk_out_money[j] <- one_series(B = 200, W = 300, L = 100, M = 100) %>% get_last
 }
+hist(walk_out_money, breaks = 100)
+
 ```
+
+This histogram depicts a better distribution of possibilities than the one run in the simulation above. Although the most common outcome is leaving the table with \$0, we can see other values represented in the graph which gives us a more realistic view at using the Martingale strategy.
 
 # 5 Conclusions
 
-Based on the simulations ran, if we were to use the Martingale strategy while playing roulette 
+Based on the simulation we ran, if we were to use the Martingale strategy while playing roulette we would need to test many different combinations of the parameters we used to be successful. The simulation we ran with an initial budget of \$200, a winnings threshold of \$300 (\$100 in winnings plus the \$200 initial budget), 1000 spin limit, and a casino maximum bet of \$100, produced results for us, but we unrealistic. Having such a high maximum number of plays combined with a relatively low starting budget only allowed us to lose all of our money or hit our winnings threshold. We saw a few limitations on our simulation and I believe that it proved the Martingale strategy to be a fraud. It is not a good way to spend your time at the roulette table or a smart way to spend your money. There is simply no way of cheating the casino that does not involve counting cards. My advice; go to the casino, have fun, and never think that you can out-smart the house because you cannot.
