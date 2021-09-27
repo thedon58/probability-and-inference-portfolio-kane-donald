@@ -85,4 +85,4 @@ To find the shortest series so that the Braves win the World Series given that P
 
 Given that the Braves win the World Series, the probability that P~B~ = 0.55 can be solved using the Bayes' formula: $$P(A|B) = P(B|A)*P(B)$$ from the cross tabs table produced below. Using this formula, we find that the probability of P~B~ = 0.55 given that the Braves win the World Series in 7 games is equal to 0.062 + 0.476 = 0.538 (the probability left over from not calculating games 1,2, or 3) or 53.8%.
 
-
+** need to fix table and problem **
