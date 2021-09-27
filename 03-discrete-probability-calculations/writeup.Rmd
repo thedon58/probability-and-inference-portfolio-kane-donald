@@ -1,0 +1,88 @@
+---
+title: "Roulette Simulation"
+output: html_document
+---
+
+### Donald Kane
+### September 27, 2021
+
+# 1 Introduction
+
+Baseball is America's pastime and its championship, the World Series, is a best-of-7 series between the winners of the American League and their National League counterparts. First played in 1903 between the Boston Americans and Pittsburgh Pirates, the World Series has seen several format changes throughout its 117 editions. No team has won the Fall Classic more than the New York Yankees with 27 World Series championships. For our blog's sake, the head-to-head probability of the Yankees against the Braves World Series is below:
+
+Team     | Probability of Winning
+------------- | -------------
+New York Yankees             | P~Y~ = 1 - P~B~ = 0.45
+Atlanta Braves             | P~B~ = 0.55
+
+# 2 Questions
+
+### What is the Probability that the Braves Win the World Series Given that P~B~ = 0.55?
+
+```{r}
+pnbinom(3,4,0.55)
+```
+
+To answer our question of finding the probability that the Atlanta Braves will win the World Series with a probability of P~B~ = 0.55, we must use the negative binomial distribution *pnbinom()* function. When used as we did above, it tells us the probability of 3 or fewer Yankee wins before a 4^th Braves win. We can see that the Atlanta Braves would have a 60.83% chance to win the World Series if they had odd os P~B~ = 0.55.
+
+### What is the Probability that the Braves Win the World Series Given that P~B~ = x?
+
+```{r}
+x = seq(0.01,1,0.01)
+plot(x,pnbinom(3,4,x),
+     main = "Probability of Winning the World Series",
+     xlab = "Probability of the Braves Winning a Head-To-Head Matchup",
+     ylab = "Pr(Win World Series",
+     type = "l")
+```
+
+As we can see from the graph above, the Atlanta Braves' win graph approaches 1 as their head-to-head win probability increases. So, using the *pnbinom()* function once again, we calculated the probability for the Braves winning the World Series using every probability from 1% to 100%.
+
+### What is the Shortest Series Length for the Probability of the Braves Winning the World Series Given that P~B~ = 0.55 is Greater than or Equal to 80%?
+
+```{r}
+series_length <- function(x) {
+  pnbinom((x-1)/2, (x+1)/2, 0.55)
+}
+
+for (j in seq(1,1000,2)) {
+  if (series_length(j) >= 0.8){
+    print(j)
+    print(series_length(j))
+    break
+  }
+}
+```
+
+To answer the question of finding the shortest series length, I needed to create a function that would test each possible series of N length possible. In the *series_length* function I created above, it would use the *pnbinom()* to find the first value that would give us a greater than 80% chance. We found that the shortest series length so that P(Braves win World Series | P~B~ = 0.55) is greater than or equal to 0.8 would be a best of 71 game series. The Braves would have an 80.17% chance of winning the World Series if it is a best-of-71.
+
+### What is the Shortest Series Length for the Probability of the Braves Winning the World Series Given that P~B~ = x is Greater than or Equal to 80%? 
+
+```{r}
+q = seq(0.001,1,0.001)
+v <- rep(NA, 500)
+n_series_length <- function(n,p){
+  pnbinom((n-1)/2, (n+1)/2, p)
+}
+for (i in 1:1000) {
+  for (j in seq(1,1000,2)) {
+    if (n_series_length(j, 0+0.001*i) >= 0.8){
+      v[i] = j
+      break
+    }
+  }
+}
+plot(q,v, 
+     main = "Shortest Series so that (Win World Series Given P) >= 0.8",
+     xlab = "Probability of the Braves Winning a Head-To-Head Matchup",
+     ylab = "Series Length",
+     type = "l")
+```
+
+To find the shortest series so that the Braves win the World Series given that P~B~ = x I created a new function called *n_series_length()* that takes 2 parameters and runs them through the *pnbinom()* function. I then needed to run them through a loop that would store the values in a vector. As we can see from the graph above, as the series length decreases from 1000, the odds of the Braves winning a head-to-head matchup increases.
+
+### P(P~B~= 0.55 |Braves Win World Series in 7 games)
+
+Given that the Braves win the World Series, the probability that P~B~ = 0.55 can be solved using the Bayes' formula: $$P(A|B) = P(B|A)*P(B)$$ from the cross tabs table produced below. Using this formula, we find that the probability of P~B~ = 0.55 given that the Braves win the World Series in 7 games is equal to 0.062 + 0.476 = 0.538 (the probability left over from not calculating games 1,2, or 3) or 53.8%.
+
+![Made in Excel](C:\Users\donal\Desktop\Screenshot 2021-09-27 071717.png)
