@@ -1,15 +1,10 @@
 ---
 title: "Monte Carlo Error"
-output:
-  html_document:
-    code_folding: hide
-    toc: yes
-    number_sections: yes
-    toc_depth: 3
-    toc_float: yes
+output: html_document
 ---
-Donald Kane
-September 13, 2021
+
+### Donald Kane
+### September 13, 2021
 
 # Introduction
 
@@ -17,8 +12,7 @@ September 13, 2021
 
 # Background
 
-  Monte. Carlo. Error...
-  When heard for the first time, I thought we were talking about Monaco and that always brings up nice memories of the Monaco Grand Prix (Daniel Ricciardo 2018), but that is not the case. The Monte Carlo method approximates results and is used to show the relationship between actual probability and the simulation's relative and absolute errors. It is a fun and different way of proving the law of large numbers because as the amount of simulations increase, both errors decrease.
+  The Monte Carlo method approximates results and is used to show the relationship between actual probability and the simulation's relative and absolute errors. It is a way of proving the law of large numbers because as the amount of simulations increase, both errors decrease towards their true values.
 
 # Methods
 
@@ -29,9 +23,6 @@ First, we need to load in our packages:
 ```{r, message=FALSE}
 library(ggplot2)
 library(dplyr)
-install.packages("remotes")
-library("remotes")
-remotes::install_github("thomasgstewart/tgsify")
 ```
 
   First step, we need to create a data frame to store the values of N, P, absolute error, and relative error.
@@ -80,12 +71,30 @@ head(output)
 
 # Results
 
+`install.packages("remotes")`
+`remotes::install_github("thomasgstewart/tgsify")`
+```{r, message=FALSE}
+library(tgsify)
+```
+
+
 ### Relative Error
 
   Relative error is defined as the absolute value of the observed probability we got from the simulation (p-hat) minus the actual probability and then divided by the actual probability. Relative probability can be better explained as the percent difference in actual vs. observed ((new-old)/old)x100. So for relative probability, we want to see, in percent terms, how far off our p-hat is from the actual probability as replicates increase.
 
 ``` {r}
-ggplot(output, aes(x=N, y=rel_error)) + geom_line(aes(col=P)) + scale_x_continuous(trans='log2') + ggtitle("Relative Error")
+output %>%
+  mutate(x = log2(N)) %>%
+  mutate(col = as.factor(P) %>% as.numeric) %>%
+  plot_setup(rel_error ~ x, c(0,15)) %>%
+  split(.$P) %>%
+  lwith({
+    lines(x, rel_error, col = col[1], lwd = 5, type = "b", pch = 16)
+    text(x[1], rel_error[1], "p="%|%P[1], pos = 2, col = col[1])
+  })
+axis(2)
+axis(1, at = axTicks(1), labels = 2^axTicks(1))
+box()
 
 ```
 
@@ -94,8 +103,18 @@ ggplot(output, aes(x=N, y=rel_error)) + geom_line(aes(col=P)) + scale_x_continuo
   Absolute error is more easily understood than relative error. It is simply the absolute value of the difference of our observed probability from the simulations and the true probability. With this value, we want to see how far our observed probability is from its true probability.
 
 ``` {r}
-ggplot(output, aes(x=N, y=abs_error)) + geom_line(aes(col=P)) + scale_x_continuous(trans='log2') + ggtitle("Absolute Error")
-
+output %>%
+  mutate(x = log2(N)) %>%
+  mutate(col = as.factor(P) %>% as.numeric) %>%
+  plot_setup(abs_error ~ x, c(0,15)) %>%
+  split(.$P) %>%
+  lwith({
+    lines(x, abs_error, col = col[1], lwd = 5, type = "b", pch = 16)
+    text(x[1], abs_error[1], "p="%|%P[1], pos = 2, col = col[1])
+  })
+axis(2)
+axis(1, at = axTicks(1), labels = 2^axTicks(1))
+box()
 ```
 
 # Conclusions
