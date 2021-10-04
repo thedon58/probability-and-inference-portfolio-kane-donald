@@ -194,7 +194,7 @@ In the simulation above, I set *advantage_multiplier2* equal to 1 to erase the b
 simYesAdv - simNoAdv
 ```
 
-From our findings above, the Atlanta Braves chances of winning the World Series when home-field advantage is in the Yankees' favor decreases by 0.0128.
+From our findings above, the Atlanta Braves chances of winning the World Series when home-field advantage is in the Yankees' favor decreases by less than 0.01 or 1%.
 
 
 # Absolute and Relative Error
