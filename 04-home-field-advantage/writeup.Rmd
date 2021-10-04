@@ -96,6 +96,8 @@ noAdv
 
 With no home-field advantage and a probability of winning any given game at P~B~ = 0.55, the Atlanta Braves have a 0.608 or 60.8% chance of beating the New York Yankees in a best-of-7 series. 
 
+### Difference
+
 ```{r}
 # From code chunk above
 wins <- apo[overall_outcome=="W"]
@@ -104,13 +106,13 @@ yesAdv <- sum(wins$p)
 yesAdv - noAdv
 ```
 
-From our findings above, the Atlanta Braves chances of winning the World Series when home-field advantage is taken away decreases by 0.004066825.
+From our findings above, the Atlanta Braves chances of winning the World Series when home-field advantage is in the Yankees' favor decreases by 0.004066825.
 
 # Simulation
 
 What we calculated above was done through the true probabilities of each given outcome for the 7 game series, but we would like to run simulations to test these the home-field advantage theory. We will take the same probabilities we set for each game with and without the boost from having home-field advantage and see how many series the Atlanta Braves win with the New York Yankees having 4 home games during the series.
 
-### With Home-Field Advantage
+### Home-Field Advantage
 
 ```{r warning=FALSE}
 # Home field indicator
@@ -118,13 +120,13 @@ hfi2 <- c(0,0,1,1,1,0,0) #{NYC, NYC, ATL, ATL, ATL, NYC, NYC}
 
 # P_B
 pb <- 0.55
-advantage_multiplier <- 1.1 # Set = 1 for no advantage
+advantage_multiplier <- 1.1 
 pbh <- 0.55*advantage_multiplier
 pba <- 1 - (1 - 0.55)*advantage_multiplier
 
 # Simulation
-series <- rep(NA, 100)
-for (i in 1:100) {
+series <- rep(NA, 10000)
+for (i in 1:10000) {
   game <- rep(NA, 7)
   for (j in 1:7) {
     win <- ifelse(hfi2[j], pbh, pba)
@@ -141,15 +143,200 @@ for (i in 1:100) {
       next
   }
 }
+
 simYesAdv <- mean(series == 'W')
 simYesAdv
 ```
 
+I decided to run the simulation 10,000 times and when home-field advantage is factored into each game of the World Series, the Atlanta Braves have around a 59% to 60% chance of beating the New York Yankees.
+
+### No Home-Field Advantage
+
+```{r warning=FALSE}
+# Home field indicator
+hfi2 <- c(0,0,1,1,1,0,0) #{NYC, NYC, ATL, ATL, ATL, NYC, NYC}
+
+# P_B
+pb <- 0.55
+advantage_multiplier2 <- 1
+pbh <- 0.55*advantage_multiplier2
+pba <- 1 - (1 - 0.55)*advantage_multiplier2
+
+# Simulation
+series <- rep(NA, 10000)
+for (i in 1:10000) {
+  game <- rep(NA, 7)
+  for (j in 1:7) {
+    win <- ifelse(hfi2[j], pbh, pba)
+    game[j] = rbinom(1, 1, win)
+    if (sum(game, na.rm = TRUE) == 4) {
+      series[i] = 'W'
+      break
+      }
+    else if (length(game[which(game == 0)]) == 4) {
+      series[i] = "L"
+      break
+      }
+    else
+      next
+  }
+}
+
+simNoAdv <- mean(series == 'W')
+simNoAdv
+```
+
+In the simulation above, I set *advantage_multiplier2* equal to 1 to erase the boost that playing at home gives to either odds. When home-field advantage is not taken into consideration, the Atlanta Braves have around a 60% chance of beating the New York Yankees in the World Series.
+
+### Difference
+
+```{r}
+simYesAdv - simNoAdv
+```
+
+From our findings above, the Atlanta Braves chances of winning the World Series when home-field advantage is in the Yankees' favor decreases by 0.0128.
 
 
+# Absolute and Relative Error
 
+Relative error is defined as the absolute value of the observed probability we got from the simulation ($\hat{p}$) minus the actual probability and then divided by the actual probability. Relative probability can be better explained as the percent difference in actual vs. observed ((new-old)/old)x100. So for relative probability, we want to see, in percent terms, how far off our $\hat{p}$ is from the actual probability as replicates increase. Absolute error is more easily understood than relative error. It is simply the absolute value of the difference of our observed probability from the simulations and the true probability. With this value, we want to see how far our observed probability is from its true probability.
 
+| Error | Description 
+|:---:|:---:|
+|  abs_error  |   \|$\hat{p}$ - p\| 
+|  rel_error  |   \|$\hat{p}$ - p\| / p 
 
+### Home-Field Advantage
+
+#### Relative Error
+
+```{r}
+relErrorYesAdv <- abs(simYesAdv - yesAdv) / yesAdv
+relErrorYesAdv
+```
+
+#### Absolute Error
+
+```{r}
+absErrorYesAdv <- abs(simYesAdv - yesAdv)
+absErrorYesAdv
+```
+
+### No Home-Field Advantage
+
+#### Relative Error
+
+```{r}
+relErrorNoAdv <- abs(simNoAdv - noAdv) / noAdv
+relErrorNoAdv
+```
+
+#### Absolute Error
+
+```{r}
+absErrorNoAdv <- abs(simNoAdv - noAdv)
+absErrorNoAdv
+```
+
+# Difference in Probabilities Depending on P~B~
+
+```{r}
+pYesAdv <- rep(NA,400)
+pNoAdv <- rep(NA,400)
+
+for (q in 1:400){
+apo <- fread("all-possible-world-series-outcomes.csv")
+
+# Home field indicator
+hfi <- c(0,0,1,1,1,0,0) #{NYC, NYC, ATL, ATL, ATL, NYC, NYC}
+
+# P_B
+pb <- 0.5+0.001*q
+advantage_multiplier <- 1.1
+pbh <- pb*advantage_multiplier
+pba <- 1 - (1 - pb)*advantage_multiplier
+
+# Calculate the probability of each possible outcome
+apo[, p := NA_real_] # Initialize new column in apo to store prob
+for(i in 1:nrow(apo)){
+  prob_game <- rep(1, 7)
+  for(j in 1:7){
+    p_win <- ifelse(hfi[j], pbh, pba)
+    prob_game[j] <- case_when(
+        apo[i,j,with=FALSE] == "W" ~ p_win
+      , apo[i,j,with=FALSE] == "L" ~ 1 - p_win
+      , TRUE ~ 1
+    )
+  }
+  apo[i, p := prod(prob_game)] # Data.table syntax
+}
+
+# Probability of overall World Series outcomes
+apo[, sum(p), by=overall_outcome]
+wins2 <- apo[overall_outcome=="W"]
+pYesAdv[q]=sum(wins2$p)
+pNoAdv[q]=pnbinom(3,4,0.5+0.001*q)
+}
+
+plot(seq(0.501,0.9,0.001),
+     pYesAdv-pNoAdv,
+     type='l',
+     main="Difference in Probabilites",
+     xlab='Single Game Probability for the Braves',
+     ylab='Difference in Probabilities')
+```
+
+As we see from the plot above, the difference in probabilities is greatest when the single game probability (*P~B~*) is around 0.7 for the Atlanta Braves. This difference turns from negative to positive between 0.55 and 0.6, which means that this marker signals the tipping point where the home-field advantage becomes a significant factor in how the series will turn out for the Atlanta Braves.
+
+# Difference in Probabilities Depending on Advantage Factor
+
+```{r}
+pYesAdv2 <- rep(NA,80)
+pNoAdv2 <- rep(NA,80)
+
+for (q in 1:80){
+apo <- fread("all-possible-world-series-outcomes.csv")
+
+# Home field indicator
+hfi <- c(0,0,1,1,1,0,0) #{NYC, NYC, ATL, ATL, ATL, NYC, NYC}
+
+# P_B
+pb <- 0.55
+advantage_multiplier <- 1 + 0.01 * q
+pbh <- pb*advantage_multiplier
+pba <- 1 - (1 - pb)*advantage_multiplier
+
+# Calculate the probability of each possible outcome
+apo[, p := NA_real_] # Initialize new column in apo to store prob
+for(i in 1:nrow(apo)){
+  prob_game <- rep(1, 7)
+  for(j in 1:7){
+    p_win <- ifelse(hfi[j], pbh, pba)
+    prob_game[j] <- case_when(
+        apo[i,j,with=FALSE] == "W" ~ p_win
+      , apo[i,j,with=FALSE] == "L" ~ 1 - p_win
+      , TRUE ~ 1
+    )
+  }
+  apo[i, p := prod(prob_game)] # Data.table syntax
+}
+
+# Probability of overall World Series outcomes
+apo[, sum(p), by=overall_outcome]
+wins3 <- apo[overall_outcome=="W"]
+pYesAdv2[q]=sum(wins3$p)
+pNoAdv2[q]=pnbinom(3,4,0.55)
+}
+
+plot(seq(1.01,1.8,0.01),
+     pYesAdv2-pNoAdv2,
+     type='l',
+     main="Difference in Probabilites",
+     xlab='Home-Field Advantage Factor',
+     ylab='Difference in Probabilities')
+```
+
+This graph shows us that with the New York Yankees having home-field advantage in the World Series over the Braves, with 4 home games compared to 3, the advantage factor plays a huge role in the probability of winning the series. Even when P~B~ = 0.55 for the Braves for any given game, when the home-field advantage factor gets to be too high, the single game advantage does not matter. This tipping point happens immediately and starts to flip the advantage to the New York Yankees.
 
 
 
