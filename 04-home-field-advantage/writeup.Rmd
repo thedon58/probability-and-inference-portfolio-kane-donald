@@ -5,3 +5,78 @@ output: html_document
 
 ### Donald Kane
 ### October 4, 2021
+
+# Introduction
+
+Home-field advantage is something that we hear all across sports, but how does it actually help the home team? This advantage comes from the home team's familiarity with their field, locker room, fans, and other factors that allow them to be more comfortable during the game. In most cases, the home team does have an advantage when playing on their own turf and we want to calculate how well having home-field advantage during a seven game series affects the outcome of the series. We will demonstrate using a World Series simulation between the New York Yankees and the Atlanta Braves to see how the odds change if it is played at Yankee Stadium in Bronx, NY or Truist Park in Atlanta, GA.
+
+# Best-Of-7 Series
+
+Now we will assume that the Atlanta Braves have home-field advantage in this series against the New York Yankees. We will use the 2-3-2 system that Major League Baseball adheres to, with the team with the better record during the regular season receiving 4 home games during the best-of-7 series. The series schedule is shown below (ATL represents the Atlanta Braves, NYY represents the New York Yankees):
+
+Game 1 | Game 2 | Game 3 | Game 4 | Game 5 | Game 6 | Game 7
+:---: | :---: | :---: | :---: | :---: | :---: | :---: 
+@ ATL | @ ATL | @ NYY | @ NYY | @ NYY | @ ATL | @ ATL
+
+# Assumptions
+
+Firstly, we must assume that home-field advantage is real and gives the home team an odds boost that they would not have at a neutral site. Next, we must assign a value that boosts the odds for the home team. Based on the graph below, we will be assigning each team a 10% odds boost of winning the game for being the home team.
+
+|Game Location | No Advantage | Advantage|
+|:---:|:---:|:---:|
+|ATL|P~B~|P~B~^H = P~B~ * 1.1|
+|NYY|P~B~|P~B~^A = 1 - (1 - P~B~) * 1.1|
+
+We have a dataset that shows us the 70 different outcomes for the 7 game series with a column for overall outcome for the Atlanta Braves. Here is a sample below:
+
+```{r, message=FALSE}
+library(readr)
+all_possible_world_series_outcomes <- read_csv("./all-possible-world-series-outcomes.csv")
+```
+```{r}
+head(all_possible_world_series_outcomes)
+```
+
+
+
+```{r, message=FALSE}
+require(dplyr)
+require(data.table)
+```
+```{r}
+# Get all possible outcomes
+apo <- fread("./all-possible-world-series-outcomes.csv")
+
+# Home field indicator
+hfi <- c(1,1,0,0,0,1,1) #{ATL, ATL, NYC, NYC, NYC, ATL, ATL}
+
+# P_B
+pb <- 0.55
+advantage_multiplier <- 1.1 # Set = 1 for no advantage
+pbh <- 0.55*advantage_multiplier
+pba <- 1 - (1 - 0.55)*advantage_multiplier
+
+# Calculate the probability of each possible outcome
+apo[, p := NA_real_] # Initialize new column in apo to store prob
+for(i in 1:nrow(apo)){
+  prob_game <- rep(1, 7)
+  for(j in 1:7){
+    p_win <- ifelse(hfi[j], pbh, pba)
+    prob_game[j] <- case_when(
+        apo[i,j,with=FALSE] == "W" ~ p_win
+      , apo[i,j,with=FALSE] == "L" ~ 1 - p_win
+      , TRUE ~ 1
+    )
+  }
+  apo[i, p := prod(prob_game)] # Data.table syntax
+}
+
+# Sanity check: does sum(p) == 1?
+apo[, sum(p)] # This is data.table notation
+
+# Probability of overall World Series outcomes
+apo[, sum(p), overall_outcome]
+```
+
+
+
