@@ -180,7 +180,7 @@ pre code {
 </div>
 <div id="best-of-7-series" class="section level1">
 <h1>Best-Of-7 Series</h1>
-<p>Now we will assume that the Atlanta Braves have home-field advantage in this series against the New York Yankees. We will use the 2-3-2 system that Major League Baseball adheres to, with the team with the better record during the regular season receiving 4 home games during the best-of-7 series. The series schedule is shown below (ATL represents the Atlanta Braves, NYY represents the New York Yankees):</p>
+<p>Now we will assume that the Atlanta Braves have home-field advantage in this series against the New York Yankees. We will use the 2-3-2 system that Major League Baseball adheres to, with the team with the better record during the regular season receiving 4 home games during the best-of-7 series. The series schedule with Atlanta having home-field advantage is shown below (ATL represents the Atlanta Braves, NYY represents the New York Yankees):</p>
 <table>
 <thead>
 <tr class="header">
@@ -230,7 +230,10 @@ pre code {
 </tr>
 </tbody>
 </table>
-<p>We have 70 different outcomes</p>
+</div>
+<div id="advantage-vs.-no-advantage" class="section level1">
+<h1>Advantage vs. No Advantage</h1>
+<p>We have a dataset that shows us the 70 different outcomes for the 7 game series with a column for overall outcome for the Atlanta Braves. Here is a sample below:</p>
 <pre class="r"><code>library(readr)
 all_possible_world_series_outcomes &lt;- read_csv(&quot;./all-possible-world-series-outcomes.csv&quot;)</code></pre>
 <pre class="r"><code>head(all_possible_world_series_outcomes)</code></pre>
@@ -243,28 +246,16 @@ all_possible_world_series_outcomes &lt;- read_csv(&quot;./all-possible-world-ser
 ## 4 W      L      W      W      W      &lt;NA&gt;   &lt;NA&gt;   W              
 ## 5 L      W      W      W      W      &lt;NA&gt;   &lt;NA&gt;   W              
 ## 6 W      W      W      L      L      W      &lt;NA&gt;   W</code></pre>
-<pre class="r"><code>require(dplyr)</code></pre>
-<pre><code>## Loading required package: dplyr</code></pre>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>require(data.table)</code></pre>
-<pre><code>## Loading required package: data.table</code></pre>
-<pre><code>## 
-## Attaching package: &#39;data.table&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
-## 
-##     between, first, last</code></pre>
+<div id="home-field-advantage" class="section level3">
+<h3>Home-Field Advantage</h3>
+<pre class="r"><code>require(dplyr)
+require(data.table)</code></pre>
+<p>To simulate a best-of-7 series where the New York Yankees have home-field advantage, we have the following code:</p>
 <pre class="r"><code># Get all possible outcomes
 apo &lt;- fread(&quot;./all-possible-world-series-outcomes.csv&quot;)
 
 # Home field indicator
-hfi &lt;- c(1,1,0,0,0,1,1) #{ATL, ATL, NYC, NYC, NYC, ATL, ATL}
+hfi &lt;- c(0,0,1,1,1,0,0) #{NYC, NYC, ATL, ATL, ATL, NYC, NYC}
 
 # P_B
 pb &lt;- 0.55
@@ -292,9 +283,64 @@ apo[, sum(p)] # This is data.table notation</code></pre>
 <pre><code>## [1] 1</code></pre>
 <pre class="r"><code># Probability of overall World Series outcomes
 apo[, sum(p), overall_outcome]</code></pre>
-<pre><code>##    overall_outcome        V1
-## 1:               W 0.6345261
-## 2:               L 0.3654739</code></pre>
+<pre><code>##    overall_outcome       V1
+## 1:               W 0.604221
+## 2:               L 0.395779</code></pre>
+<p>In the Code above we first need to read in the dataset and load in the required packages. We now can define a new variable <em>hfi</em> to be the home field indicator with a <em>1</em> representing a home game and a <em>0</em> for an away game for the Atlanta Braves (sequence of 0,0,1,1,1,0,0). Next, we must set the probabilities for each team and the weighted value (10%) for having a home-field advantage. <em>pbh</em> is the probability of a win that is set at 0.55, <em>pbh</em> represents the Braves’ home-field advantage and <em>pba</em> represents the Yankees’ home-field advantage. Now we calculate the probability of each possible outcome and will do that with a loop. After ensuring that we touched on every possible way a best-of-7 series can go, our output shows us that, with a 0.55 probability of winning game with a 10% boost for home-field advantage, the Atlanta Braves have a 0.604 or 60.4% chance of winning the series.</p>
+</div>
+<div id="no-home-field-advantage" class="section level3">
+<h3>No Home-Field Advantage</h3>
+<p>Under the assumption that P<sub>B</sub> = 0.55 for the Braves to win any given game, we will simply calculate the odds that the Braves win 4 games before losing 4.</p>
+<pre class="r"><code>noAdv &lt;- pnbinom(3,4,0.55)
+noAdv</code></pre>
+<pre><code>## [1] 0.6082878</code></pre>
+<p>With no home-field advantage and a probability of winning any given game at P<sub>B</sub> = 0.55, the Atlanta Braves have a 0.608 or 60.8% chance of beating the New York Yankees in a best-of-7 series.</p>
+<pre class="r"><code># From code chunk above
+wins &lt;- apo[overall_outcome==&quot;W&quot;]
+yesAdv &lt;- sum(wins$p)
+
+yesAdv - noAdv</code></pre>
+<pre><code>## [1] -0.004066825</code></pre>
+<p>From our findings above, the Atlanta Braves chances of winning the World Series when home-field advantage is taken away decreases by 0.004066825.</p>
+</div>
+</div>
+<div id="simulation" class="section level1">
+<h1>Simulation</h1>
+<p>What we calculated above was done through the true probabilities of each given outcome for the 7 game series, but we would like to run simulations to test these the home-field advantage theory. We will take the same probabilities we set for each game with and without the boost from having home-field advantage and see how many series the Atlanta Braves win with the New York Yankees having 4 home games during the series.</p>
+<div id="with-home-field-advantage" class="section level3">
+<h3>With Home-Field Advantage</h3>
+<pre class="r"><code># Home field indicator
+hfi2 &lt;- c(0,0,1,1,1,0,0) #{NYC, NYC, ATL, ATL, ATL, NYC, NYC}
+
+# P_B
+pb &lt;- 0.55
+advantage_multiplier &lt;- 1.1 # Set = 1 for no advantage
+pbh &lt;- 0.55*advantage_multiplier
+pba &lt;- 1 - (1 - 0.55)*advantage_multiplier
+
+# Simulation
+series &lt;- rep(NA, 100)
+for (i in 1:100) {
+  game &lt;- rep(NA, 7)
+  for (j in 1:7) {
+    win &lt;- ifelse(hfi2[j], pbh, pba)
+    game[j] = rbinom(1, 1, win)
+    if (sum(game, na.rm = TRUE) == 4) {
+      series[i] = &#39;W&#39;
+      break
+      }
+    else if (length(game[which(game == 0)]) == 4) {
+      series[i] = &quot;L&quot;
+      break
+      }
+    else
+      next
+  }
+}
+simYesAdv &lt;- mean(series == &#39;W&#39;)
+simYesAdv</code></pre>
+<pre><code>## [1] 0.57</code></pre>
+</div>
 </div>
 
 

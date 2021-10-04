@@ -12,7 +12,7 @@ Home-field advantage is something that we hear all across sports, but how does i
 
 # Best-Of-7 Series
 
-Now we will assume that the Atlanta Braves have home-field advantage in this series against the New York Yankees. We will use the 2-3-2 system that Major League Baseball adheres to, with the team with the better record during the regular season receiving 4 home games during the best-of-7 series. The series schedule is shown below (ATL represents the Atlanta Braves, NYY represents the New York Yankees):
+Now we will assume that the Atlanta Braves have home-field advantage in this series against the New York Yankees. We will use the 2-3-2 system that Major League Baseball adheres to, with the team with the better record during the regular season receiving 4 home games during the best-of-7 series. The series schedule with Atlanta having home-field advantage is shown below (ATL represents the Atlanta Braves, NYY represents the New York Yankees):
 
 Game 1 | Game 2 | Game 3 | Game 4 | Game 5 | Game 6 | Game 7
 :---: | :---: | :---: | :---: | :---: | :---: | :---: 
@@ -27,6 +27,8 @@ Firstly, we must assume that home-field advantage is real and gives the home tea
 |ATL|P~B~|P~B~^H = P~B~ * 1.1|
 |NYY|P~B~|P~B~^A = 1 - (1 - P~B~) * 1.1|
 
+# Advantage vs. No Advantage
+
 We have a dataset that shows us the 70 different outcomes for the 7 game series with a column for overall outcome for the Atlanta Braves. Here is a sample below:
 
 ```{r, message=FALSE}
@@ -37,18 +39,21 @@ all_possible_world_series_outcomes <- read_csv("./all-possible-world-series-outc
 head(all_possible_world_series_outcomes)
 ```
 
-
+### Home-Field Advantage
 
 ```{r, message=FALSE}
 require(dplyr)
 require(data.table)
 ```
+
+To simulate a best-of-7 series where the New York Yankees have home-field advantage, we have the following code: 
+
 ```{r}
 # Get all possible outcomes
 apo <- fread("./all-possible-world-series-outcomes.csv")
 
 # Home field indicator
-hfi <- c(1,1,0,0,0,1,1) #{ATL, ATL, NYC, NYC, NYC, ATL, ATL}
+hfi <- c(0,0,1,1,1,0,0) #{NYC, NYC, ATL, ATL, ATL, NYC, NYC}
 
 # P_B
 pb <- 0.55
@@ -77,6 +82,74 @@ apo[, sum(p)] # This is data.table notation
 # Probability of overall World Series outcomes
 apo[, sum(p), overall_outcome]
 ```
+
+In the Code above we first need to read in the dataset and load in the required packages. We now can define a new variable *hfi* to be the home field indicator with a *1* representing a home game and a *0* for an away game for the Atlanta Braves (sequence of 0,0,1,1,1,0,0). Next, we must set the probabilities for each team and the weighted value (10%) for having a home-field advantage. *pbh* is the probability of a win that is set at 0.55, *pbh* represents the Braves' home-field advantage and *pba* represents the Yankees' home-field advantage. Now we calculate the probability of each possible outcome and will do that with a loop. After ensuring that we touched on every possible way a best-of-7 series can go, our output shows us that, with a 0.55 probability of winning game with a 10% boost for home-field advantage, the Atlanta Braves have a 0.604 or 60.4% chance of winning the series.
+
+### No Home-Field Advantage
+
+Under the assumption that P~B~ = 0.55 for the Braves to win any given game, we will simply calculate the odds that the Braves win 4 games before losing 4.
+
+```{r}
+noAdv <- pnbinom(3,4,0.55)
+noAdv
+```
+
+With no home-field advantage and a probability of winning any given game at P~B~ = 0.55, the Atlanta Braves have a 0.608 or 60.8% chance of beating the New York Yankees in a best-of-7 series. 
+
+```{r}
+# From code chunk above
+wins <- apo[overall_outcome=="W"]
+yesAdv <- sum(wins$p)
+
+yesAdv - noAdv
+```
+
+From our findings above, the Atlanta Braves chances of winning the World Series when home-field advantage is taken away decreases by 0.004066825.
+
+# Simulation
+
+What we calculated above was done through the true probabilities of each given outcome for the 7 game series, but we would like to run simulations to test these the home-field advantage theory. We will take the same probabilities we set for each game with and without the boost from having home-field advantage and see how many series the Atlanta Braves win with the New York Yankees having 4 home games during the series.
+
+### With Home-Field Advantage
+
+```{r warning=FALSE}
+# Home field indicator
+hfi2 <- c(0,0,1,1,1,0,0) #{NYC, NYC, ATL, ATL, ATL, NYC, NYC}
+
+# P_B
+pb <- 0.55
+advantage_multiplier <- 1.1 # Set = 1 for no advantage
+pbh <- 0.55*advantage_multiplier
+pba <- 1 - (1 - 0.55)*advantage_multiplier
+
+# Simulation
+series <- rep(NA, 100)
+for (i in 1:100) {
+  game <- rep(NA, 7)
+  for (j in 1:7) {
+    win <- ifelse(hfi2[j], pbh, pba)
+    game[j] = rbinom(1, 1, win)
+    if (sum(game, na.rm = TRUE) == 4) {
+      series[i] = 'W'
+      break
+      }
+    else if (length(game[which(game == 0)]) == 4) {
+      series[i] = "L"
+      break
+      }
+    else
+      next
+  }
+}
+simYesAdv <- mean(series == 'W')
+simYesAdv
+```
+
+
+
+
+
+
 
 
 
