@@ -258,8 +258,6 @@ plot(q,v,
 <div id="ppb-0.55-braves-win-world-series-in-7-games" class="section level3">
 <h3>P(P<sub>B</sub>= 0.55 |Braves Win World Series in 7 games)</h3>
 <p>Under the assumption that P<sub>B</sub> = 0.55 or P<sub>B</sub> = 0.45, We know that each probability has a probability of occuring at 0.5 or 50% of the time. Given that the Braves win the World Series, the probability that P<sub>B</sub> = 0.55 can be solved using the Bayes’ formula: <span class="math display">\[ P(A|B) = P(B|A) * \frac{P(A)}{P(B)}\]</span>.</p>
-<pre class="r"><code>dnbinom(3,4,0.55)*0.5/(dnbinom(3,4,0.55)*0.5+dnbinom(3,4,0.45)*0.5)</code></pre>
-<pre><code>## [1] 0.55</code></pre>
 </div>
 </div>
 
