@@ -13,13 +13,18 @@ output: html_document
 
 
 ```{r}
-plot(dgamma(1:12, shape = 3, scale = 1),
+gd <- -seq(from = -6,to = 6,length.out=1000)
+plot(gd, dgamma(gd, 3, 1),
      type = "l",
-     main = "Probability Density Function")
+     xlab='x',
+     ylab='PDF',
+     main='Probability Density Function of Gamma Distribution')
 
-plot(pgamma(1:12, shape = 3, scale = 1),
+plot(gd, pgamma(gd, 3, 1),
      type = "l",
-     main = "Cummulative Distribution Function")
+     xlab='x',
+     ylab='CDF',
+     main='Cummulative Density Function of Gamma Distribution')
 ```
 
 #### Log Transformation
@@ -46,18 +51,38 @@ median(pgamma(log(1:120), shape = 3, scale = 1))
 
 
 ```{r}
-plot(dnorm(1:5, -1, 1),
+nd <- -seq(from = -5,to = 5,length.out=1000)
+plot(nd, dnorm(nd, -1, 1),
      type = "l",
-     main = "Probability Density Function")
+     xlab='x',
+     ylab='PDF',
+     main='Probability Density Function of Normal Distribution')
 
-plot(pnorm(1:5, -1, 1),
+plot(nd, pnorm(nd, -1, 1),
      type = "l",
-     main = "Cummulative Distribution Function")
+     xlab='x',
+     ylab='CDF',
+     main='Cummulative Density Function of Normal Distribution')
+
 ```
 
 #### Log Transformation
 
 ```{r}
+nd <- -seq(from = -5,to = 5,length.out=100)
+plot(nd, log(dnorm(nd, -1, 1)),
+     type = "l",
+     xlab='x',
+     ylab='PDF',
+     main='Probability Density Function of Normal Distribution')
+
+plot(nd, log(pnorm(nd, -1, 1)),
+     type = "l",
+     xlab='x',
+     ylab='CDF',
+     main='Cummulative Density Function of Normal Distribution')
+
+
 plot(dnorm(log(1:5), -1, 1),
      type = "l",
      main = "Probability Density Function",
@@ -79,12 +104,18 @@ median(pnorm(log(1:5), -1, 1))
 
 
 ```{r}
-plot(dunif(1:18, 0, 12),
+ud <- -seq(from = -5,to = 5,length.out=1000)
+plot(ud, dunif(ud, 0, 12),
      type = "l",
-     main = "Probability Density Function")
-plot(punif(1:18, 0, 12),
+     xlab='x',
+     ylab='PDF',
+     main='Probability Density Function of Unifrom Distribution')
+
+plot(ud, punif(ud, 0, 12),
      type = "l",
-     main = "Cummulative Distribution Function")
+     xlab='x',
+     ylab='CDF',
+     main='Cummulative Density Function of Uniform Distribution')
 ```
 
 #### Log Transformation
