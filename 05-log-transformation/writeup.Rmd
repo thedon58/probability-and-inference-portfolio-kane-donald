@@ -87,7 +87,7 @@ plot(punif(1:18, 0, 12),
      main = "Cummulative Distribution Function")
 ```
 
-#### Log Transformation
+#### Log Transformations
 
 ```{r}
 plot(dunif(log(1:18), 0, 12),
