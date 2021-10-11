@@ -8,19 +8,101 @@ output: html_document
 
 # Part 1
 
-```{r}
-plot(dgamma(1:20, shape = 3, scale = 1), type = "l")
-plot(pgamma(1:20, shape = 3, scale = 1), type = "l")
-```
+### Gamma Distribution
+
+
 
 ```{r}
-plot(dnorm(1:20, -1, 1), type = "l")
-plot(pnorm(1:20, -1, 1), type = "l")
+plot(dgamma(1:12, shape = 3, scale = 1),
+     type = "l",
+     main = "Probability Density Function")
+
+plot(pgamma(1:12, shape = 3, scale = 1),
+     type = "l",
+     main = "Cummulative Distribution Function")
 ```
 
+#### Log Transformation
+
 ```{r}
-plot(dunif(1:20,0,12), type = "l")
-plot(punif(1:20,0,12), type = "l")
+plot(dgamma(log(1:120), shape = 3, scale = 1),
+     type = "l",
+     main = "Probability Density Function",
+     ylab = "Y = log(x)")
+mean(dgamma(log(1:120), shape = 3, scale = 1))
+median(dgamma(log(1:120), shape = 3, scale = 1))
+
+plot(pgamma(log(1:120), shape = 3, scale = 1),
+     type = "l",
+     main = "Cummulative Distribution Function",
+     ylab = "Y = log(x)")
+mean(pgamma(log(1:120), shape = 3, scale = 1))
+median(pgamma(log(1:120), shape = 3, scale = 1))
+```
+
+
+### Normal Distribution
+
+
+
+```{r}
+plot(dnorm(1:5, -1, 1),
+     type = "l",
+     main = "Probability Density Function")
+
+plot(pnorm(1:5, -1, 1),
+     type = "l",
+     main = "Cummulative Distribution Function")
+```
+
+#### Log Transformation
+
+```{r}
+plot(dnorm(log(1:5), -1, 1),
+     type = "l",
+     main = "Probability Density Function",
+     ylab = "Y = log(x)")
+mean(dnorm(log(1:5), -1, 1))
+median(dnorm(log(1:5), -1, 1))
+
+plot(pnorm(log(1:5), -1, 1),
+     type = "l",
+     main = "Cummulative Distribution Function",
+     ylab = "Y = log(x)")
+mean(pnorm(log(1:5), -1, 1))
+median(pnorm(log(1:5), -1, 1))
+```
+
+
+### Uniform Distribution
+
+
+
+```{r}
+plot(dunif(1:18, 0, 12),
+     type = "l",
+     main = "Probability Density Function")
+plot(punif(1:18, 0, 12),
+     type = "l",
+     main = "Cummulative Distribution Function")
+```
+
+#### Log Transformation
+
+```{r}
+plot(dunif(log(1:18), 0, 12),
+     type = "l",
+     main = "Probability Density Function",
+     ylab = "Y = log(x)")
+mean(dunif(log(1:18),0,12))
+median(dunif(log(1:18), 0, 12))
+
+plot(punif(log(1:18),0,12),
+     type = "l",
+     main = "Cummulative Distribution Function",
+     ylab = "Y = log(x)")
+mean(punif(log(1:18),0,12))
+median(punif(log(1:18), 0, 12))
 ```
 
 
