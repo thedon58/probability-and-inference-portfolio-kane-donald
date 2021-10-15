@@ -257,7 +257,10 @@ plot(q,v,
 </div>
 <div id="ppb-0.55-braves-win-world-series-in-7-games" class="section level3">
 <h3>P(P<sub>B</sub>= 0.55 |Braves Win World Series in 7 games)</h3>
-<p>Under the assumption that P<sub>B</sub> = 0.55 or P<sub>B</sub> = 0.45, We know that each probability has a probability of occuring at 0.5 or 50% of the time. Given that the Braves win the World Series, the probability that P<sub>B</sub> = 0.55 can be solved using the Bayes’ formula: <span class="math display">\[ P(A|B) = P(B|A) * \frac{P(A)}{P(B)}\]</span>.</p>
+<p>Under the assumption that P<sub>B</sub> = 0.55 or P<sub>B</sub> = 0.45, We know that each probability has a probability of occuring at 0.5 or 50% of the time. Given that the Braves win the World Series, the probability that P<sub>B</sub> = 0.55 can be solved using the Bayes’ formula: <span class="math display">\[ P(A|B) = P(B|A) * \frac{P(A)}{P(B)}\]</span>. When we translate this formula to our problem, we see <span class="math display">\[ P(PB = 0.55|Braves win in 7 games) = P(Braves win in 7 games|PB = 0.55) * \frac{P(PB = 0.55)}{P(Braves win in 7 games)}\]</span> and can solve this using the function <em>dnbinom</em>.</p>
+<pre class="r"><code>dnbinom(3,4,0.55)*0.5 / (dnbinom(3,4,0.55) * 0.5 + dnbinom(3,4,0.45)*0.5)</code></pre>
+<pre><code>## [1] 0.55</code></pre>
+<p>Based on the Bayes’ formula, the probability that the Braves have a 55% chance to win given that they win the World Series in 7 games is 0.55 or 55%.</p>
 </div>
 </div>
 
