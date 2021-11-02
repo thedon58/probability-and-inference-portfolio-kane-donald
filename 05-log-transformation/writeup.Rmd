@@ -10,130 +10,145 @@ output: html_document
 
 ### Gamma Distribution
 
-
-
-```{r}
-gd <- -seq(from = -6,to = 6,length.out=1000)
-plot(gd, dgamma(gd, 3, 1),
-     type = "l",
-     xlab='x',
-     ylab='PDF',
-     main='Probability Density Function of Gamma Distribution')
-
-plot(gd, pgamma(gd, 3, 1),
-     type = "l",
-     xlab='x',
-     ylab='CDF',
-     main='Cummulative Density Function of Gamma Distribution')
-```
-
-#### Log Transformation
-
-```{r}
-plot(dgamma(log(1:120), shape = 3, scale = 1),
-     type = "l",
-     main = "Probability Density Function",
-     ylab = "Y = log(x)")
-mean(dgamma(log(1:120), shape = 3, scale = 1))
-median(dgamma(log(1:120), shape = 3, scale = 1))
-
-plot(pgamma(log(1:120), shape = 3, scale = 1),
-     type = "l",
-     main = "Cummulative Distribution Function",
-     ylab = "Y = log(x)")
-mean(pgamma(log(1:120), shape = 3, scale = 1))
-median(pgamma(log(1:120), shape = 3, scale = 1))
+```{r message=FALSE}
+library(ggplot2)
+library(dplyr)
 ```
 
 
-### Normal Distribution
-
-
-
 ```{r}
-nd <- -seq(from = -5,to = 5,length.out=1000)
-plot(nd, dnorm(nd, -1, 1),
-     type = "l",
-     xlab='x',
-     ylab='PDF',
-     main='Probability Density Function of Normal Distribution')
+x <- seq(0,10, by = 0.1)
+g_PDF <- dgamma(x, shape = 3, scale = 1)
+g_CDF <- pgamma(x, shape = 3, scale = 1)
+g_log_PDF <- log(dgamma(x, shape = 3, scale = 1))
+g_log_CDF <- log(pgamma(x, shape = 3, scale = 1))
 
-plot(nd, pnorm(nd, -1, 1),
-     type = "l",
-     xlab='x',
-     ylab='CDF',
-     main='Cummulative Density Function of Normal Distribution')
+df <- data.frame(x, g_PDF, g_CDF, g_log_PDF, g_log_CDF)
 
+ggplot(df, aes(x = x)) +
+        geom_line(y = g_PDF) +
+        geom_vline(aes(xintercept = mean(rgamma(1000, shape = 3, 
+                                                scale = 1)),
+                   color = "mean")) +
+        geom_vline(aes(xintercept = qgamma(0.5, shape = 3, scale = 1),
+                   color = "median")) +
+        theme_bw() +
+        labs(
+                title = "Gamma Distribution PDF",
+                x = "x",
+                y = "x ~ Gamma(shape = 3, scale = 1)"
+        ) +
+        scale_color_manual(name = "Statistics", 
+                           values = c(median = "green", mean = "red"))
+
+ggplot(df, aes(x = x)) +
+        geom_line(y = g_CDF) +
+        geom_vline(aes(xintercept = mean(rgamma(1000, shape = 3, 
+                                                scale = 1)),
+                   color = "mean")) +
+        geom_vline(aes(xintercept = qgamma(0.5, shape = 3, scale = 1),
+                   color = "median")) +
+        theme_bw() +
+        labs(
+                title = "Gamma Distribution CDF",
+                x = "x",
+                y = "x ~ Gamma(shape = 3, scale = 1)"
+        ) +
+        scale_color_manual(name = "Statistics", 
+                           values = c(median = "green", mean = "red"))
+
+plot(x, g_log_PDF, type = "l", abline())
 ```
 
-#### Log Transformation
-
-```{r}
-nd <- -seq(from = -5,to = 5,length.out=100)
-plot(nd, log(dnorm(nd, -1, 1)),
-     type = "l",
-     xlab='x',
-     ylab='PDF',
-     main='Probability Density Function of Normal Distribution')
-
-plot(nd, log(pnorm(nd, -1, 1)),
-     type = "l",
-     xlab='x',
-     ylab='CDF',
-     main='Cummulative Density Function of Normal Distribution')
+### Log Normal Distribution
 
 
-plot(dnorm(log(1:5), -1, 1),
-     type = "l",
-     main = "Probability Density Function",
-     ylab = "Y = log(x)")
-mean(dnorm(log(1:5), -1, 1))
-median(dnorm(log(1:5), -1, 1))
 
-plot(pnorm(log(1:5), -1, 1),
-     type = "l",
-     main = "Cummulative Distribution Function",
-     ylab = "Y = log(x)")
-mean(pnorm(log(1:5), -1, 1))
-median(pnorm(log(1:5), -1, 1))
+```{r message=FALSE, warning=FALSE}
+x1 <- seq(0,10, by = 0.1)
+ln_PDF <- dlnorm(x1, meanlog = -1, sdlog = 1)
+ln_CDF <- plnorm(x1, meanlog = -1, sdlog = 1)
+
+df1 <- data.frame(x1, ln_PDF, ln_CDF)
+
+ggplot(df1, aes(x = x1)) +
+        geom_line(y = ln_PDF) +
+        geom_vline(aes(xintercept = mean(rlnorm(1000, 
+                                                meanlog = -1, sdlog = 1)),
+                   color = "mean")) +
+        geom_vline(aes(xintercept = qlnorm(0.5, meanlog = -1, sdlog = 1),
+                   color = "median")) +
+        theme_bw() +
+        labs(
+                title = "Log Normal Distribution PDF \nMean = -1, Standard Deviation = 1",
+                x = "x",
+                y = "x ~ Log Normal"
+        ) +
+        ylim(0,2)
+        scale_color_manual(name = "Statistics", 
+                           values = c(median = "green", mean = "red"))
+
+ggplot(df1, aes(x = x1)) +
+        geom_line(y = ln_CDF) +
+        geom_vline(aes(xintercept = mean(rlnorm(1000, 
+                                                meanlog = -1, sdlog = 1)),
+                   color = "mean")) +
+        geom_vline(aes(xintercept = qlnorm(0.5, meanlog = -1, sdlog = 1),
+                   color = "median")) +
+        theme_bw() +
+        labs(
+                title = "Log Normal Distribution CDF \nMean = -1, Standard Deviation = 1",
+                x = "x",
+                y = "x ~ Log Normal"
+        ) +
+        ylim(0,1) +
+        scale_color_manual(name = "Statistics", 
+                           values = c(median = "green", mean = "red"))
 ```
-
 
 ### Uniform Distribution
 
-
-
 ```{r}
-ud <- -seq(from = -5,to = 5,length.out=1000)
-plot(ud, dunif(ud, 0, 12),
-     type = "l",
-     xlab='x',
-     ylab='PDF',
-     main='Probability Density Function of Unifrom Distribution')
+x2 <- seq(-1,13, by = 0.1)
+u_PDF <- dunif(x2, min = 0, max = 12)
+u_CDF <- punif(x2, min = 0, max = 12)
+u_log_PDF <- log(dunif(x2, min = 0, max = 12))
+u_log_CDF <- log(punif(x2, min = 0, max = 12))
 
-plot(ud, punif(ud, 0, 12),
-     type = "l",
-     xlab='x',
-     ylab='CDF',
-     main='Cummulative Density Function of Uniform Distribution')
-```
+df2 <- data.frame(x2, u_PDF, u_CDF, u_log_PDF, u_log_CDF)
 
-#### Log Transformations
+ggplot(df2, aes(x = x2)) +
+        geom_line(y = u_PDF) +
+        geom_vline(aes(xintercept = mean(runif(1000, 0, 12)),
+                   color = "mean")) +
+        geom_vline(aes(xintercept = qunif(0.5, 0, 12),
+                   color = "median")) +
+        theme_bw() +
+        labs(
+                title = "Uniform Distribution PDF",
+                x = "x",
+                y = "x ~ Uniform(0, 12)"
+        ) +
+        ylim(0,1) +
+        scale_color_manual(name = "Statistics", 
+                           values = c(median = "green", mean = "red"))
 
-```{r}
-plot(dunif(log(1:18), 0, 12),
-     type = "l",
-     main = "Probability Density Function",
-     ylab = "Y = log(x)")
-mean(dunif(log(1:18),0,12))
-median(dunif(log(1:18), 0, 12))
+ggplot(df2, aes(x = x2)) +
+        geom_line(y = u_CDF) +
+        geom_vline(aes(xintercept = mean(runif(1000, 0, 12)),
+                   color = "mean")) +
+        geom_vline(aes(xintercept = qunif(0.5, 0, 12),
+                   color = "median")) +
+        theme_bw() +
+        labs(
+                title = "Uniform Distribution CDF",
+                x = "x",
+                y = "x ~ Uniform(0,12)"
+        ) +
+        ylim(0,1) +
+        scale_color_manual(name = "Statistics", 
+                           values = c(median = "green", mean = "red"))
 
-plot(punif(log(1:18),0,12),
-     type = "l",
-     main = "Cummulative Distribution Function",
-     ylab = "Y = log(x)")
-mean(punif(log(1:18),0,12))
-median(punif(log(1:18), 0, 12))
 ```
 
 
