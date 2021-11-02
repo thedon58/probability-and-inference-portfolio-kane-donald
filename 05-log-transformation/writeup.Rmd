@@ -57,7 +57,7 @@ ggplot(df, aes(x = x)) +
         scale_color_manual(name = "Statistics", 
                            values = c(median = "green", mean = "red"))
 
-plot(x, g_log_PDF, type = "l", abline())
+#plot(x, g_log_PDF, type = "l", abline())
 ```
 
 ### Log Normal Distribution
