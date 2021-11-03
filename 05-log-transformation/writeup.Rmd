@@ -17,6 +17,8 @@ library(dplyr)
 
 ## Gamma Distribution
 
+X ~ Gamma(shape = 3, scale = 1)
+
 ### Gamma Distribution Probability Density Function
 
 ```{r}
@@ -129,12 +131,14 @@ ggplot(avgs, aes(x = difference)) +
 
 ## Log Normal Distribution
 
+X ~ log Normal(mean = -1, standard deviation = 1)
+
 ### Log Normal Distribution Probability Density Function
 
 ```{r message=FALSE, warning=FALSE}
 x1 <- seq(0,10, by = 0.1)
-ln_PDF <- dlnorm(x1, meanlog = -1, sdlog = 1)
-ln_CDF <- plnorm(x1, meanlog = -1, sdlog = 1)
+ln_PDF <- dlnorm(x1, -1, 1)
+ln_CDF <- plnorm(x1, -1, 1)
 
 df1 <- data.frame(x1, ln_PDF, ln_CDF)
 
@@ -238,6 +242,8 @@ ggplot(avgs, aes(x = difference)) +
 
 
 ## Uniform Distribution
+
+X ~ Uniform(min = 0, max = 12)
 
 ### Uniform Distribution Probability Density Function
 
@@ -348,8 +354,69 @@ ggplot(avgs, aes(x = difference)) +
              title = 'Mean Differences')
 ```
 
+# Part 3
 
+What is the correct relationship between E[log(X)] and log(E[X])?
 
+### Gamma
 
+Based on the results below, we see the distribution is mostly in the negatives which allows us to say that the logarithm of the expected value of x is greater than the expected value of log(x) for the gamma distribution.
 
+```{r}
+expect_lg = rep(NA, 1000)
+lg_expect = rep(NA, 1000)
 
+for (i in 1:1000){
+  q = rgamma(10000, shape = 3, scale = 1)
+  expect_lg[i] = mean(log(q))
+  lg_expect[i] = log(mean(q))
+}
+
+difference = expect_lg - lg_expect
+
+hist(difference, freq = FALSE, breaks = 50,
+     main = 'Difference between E[log(x)] and log(E[x])', 
+     xlab = 'E[log(x)] - log(E[x])')
+```
+
+### Log Normal
+
+Based on the results below, we see the distribution is mostly in the negatives which allows us to say that the logarithm of the expected value of x is greater than the expected value of log(x) for the log normal distribution.
+
+```{r}
+expect_lg = rep(NA, 1000)
+lg_expect = rep(NA, 1000)
+
+for (i in 1:1000){
+  q = rlnorm(10000, -1, 1)
+  expect_lg[i] = mean(log(q))
+  lg_expect[i] = log(mean(q))
+}
+
+difference = expect_lg - lg_expect
+
+hist(difference, freq = FALSE, breaks = 50,
+     main = 'Difference between E[log(x)] and log(E[x])', 
+     xlab = 'E[log(x)] - log(E[x])')
+```
+
+### Uniform
+
+Based on the results below, we see the distribution is mostly in the negatives which allows us to say that the logarithm of the expected value of x is greater than the expected value of log(x) for the uniform distribution.
+
+```{r}
+expect_lg = rep(NA, 1000)
+lg_expect = rep(NA, 1000)
+
+for (i in 1:1000){
+  q = runif(10000, 0, 12)
+  expect_lg[i] = mean(log(q))
+  lg_expect[i] = log(mean(q))
+}
+
+difference = expect_lg - lg_expect
+
+hist(difference, freq = FALSE, breaks = 50,
+     main = 'Difference between E[log(x)] and log(E[x])', 
+     xlab = 'E[log(x)] - log(E[x])')
+```
