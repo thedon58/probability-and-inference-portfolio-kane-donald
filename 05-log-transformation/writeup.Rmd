@@ -6,9 +6,7 @@ output: html_document
 ### Donald Kane
 ### October 11, 2021
 
-# Part 1
-
-### Gamma Distribution
+# Introduction
 
 ```{r message=FALSE}
 library(ggplot2)
@@ -16,14 +14,11 @@ library(dplyr)
 ```
 
 
+# Gamma Distribution Probability Density Function
 ```{r}
 x <- seq(0,10, by = 0.1)
 g_PDF <- dgamma(x, shape = 3, scale = 1)
-g_CDF <- pgamma(x, shape = 3, scale = 1)
-g_log_PDF <- log(dgamma(x, shape = 3, scale = 1))
-g_log_CDF <- log(pgamma(x, shape = 3, scale = 1))
-
-df <- data.frame(x, g_PDF, g_CDF, g_log_PDF, g_log_CDF)
+df <- data.frame(x, g_PDF, g_CDF)
 
 ggplot(df, aes(x = x)) +
         geom_line(y = g_PDF) +
@@ -32,7 +27,8 @@ ggplot(df, aes(x = x)) +
                    color = "mean")) +
         geom_vline(aes(xintercept = qgamma(0.5, shape = 3, scale = 1),
                    color = "median")) +
-        theme_bw() +
+        theme_classic() +
+        ylim(0,0.5) +
         labs(
                 title = "Gamma Distribution PDF",
                 x = "x",
@@ -40,7 +36,13 @@ ggplot(df, aes(x = x)) +
         ) +
         scale_color_manual(name = "Statistics", 
                            values = c(median = "green", mean = "red"))
+```
 
+# Gamma Distribution Cummulative Density Function
+
+```{r}
+x <- seq(0,10, by = 0.1)
+g_CDF <- pgamma(x, shape = 3, scale = 1)
 ggplot(df, aes(x = x)) +
         geom_line(y = g_CDF) +
         geom_vline(aes(xintercept = mean(rgamma(1000, shape = 3, 
@@ -48,7 +50,8 @@ ggplot(df, aes(x = x)) +
                    color = "mean")) +
         geom_vline(aes(xintercept = qgamma(0.5, shape = 3, scale = 1),
                    color = "median")) +
-        theme_bw() +
+        theme_classic() +
+        ylim(0,1) +
         labs(
                 title = "Gamma Distribution CDF",
                 x = "x",
@@ -56,11 +59,67 @@ ggplot(df, aes(x = x)) +
         ) +
         scale_color_manual(name = "Statistics", 
                            values = c(median = "green", mean = "red"))
-
-#plot(x, g_log_PDF, type = "l", abline())
 ```
 
-### Log Normal Distribution
+# Gamma Log Distribution Probability Density Function
+
+```{r}
+g_log <- log(rgamma(1000, shape = 3, scale = 1))
+
+plot(density(g_log), type = "l", 
+     main = "Log Gamma Probability Density Function")
+abline(v = mean(g_log), col= 'red')
+abline(v = median(g_log), col = "green")
+legend('topleft', c('mean', 'median'),
+       col = c('red', 'green'), lty = c(1, 1))
+```
+
+# Gamma Log Distribution Cummulative Density Function
+
+```{r}
+g_log <- log(rgamma(1000, shape = 3, scale = 1))
+
+plot(ecdf(g_log), main = "Log Gamma Cummulative Density Function")
+abline(v = mean(g_log), col= 'red')
+abline(v = median(g_log), col = "green")
+legend('bottomright', c('mean', 'median'),
+       col = c('red', 'green'), lty = c(1, 1))
+
+```
+
+# Geometric and Arithmetic Means
+
+```{r}
+geometric = rep(NA, 1000)
+arithmetic = rep(NA, 1000)
+difference = rep(NA, 1000)
+
+for (i in 1:1000){
+  q = rgamma(100, shape = 3, scale = 1)
+  
+  arithmetic[i] = mean(q)
+  geometric[i] = exp(mean(log(q)))
+  difference[i] = abs(arithmetic[i] - geometric[i])
+}
+
+means = data.frame(arithmetic, geometric, difference)
+
+# scatter plot
+ggplot(means, aes(x = geometric, y = arithmetic))+
+  geom_point()+
+  labs(x = 'Geometric Means',
+       y = 'Arithmetic Means',
+       title = 'Geometric vs. Arithmetic Means')
+
+ggplot(means, aes(x = dif))+
+  geom_histogram()+
+  labs(x = 'Difference',
+       y = 'Frequency',
+       title = 'Differences between Means')
+```
+
+
+# Log Normal Distribution
 
 
 
