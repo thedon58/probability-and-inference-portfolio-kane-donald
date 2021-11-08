@@ -5,3 +5,234 @@ output: html_document
 
 ### Donald Kane
 ### October 25, 2021
+
+
+```{r}
+require(dplyr)
+Hmisc::getHdata(nhgh)
+d1 <- nhgh %>% 
+  filter(sex == "female") %>% 
+  filter(age >= 18) %>% 
+  select(gh, ht) %>% 
+  filter(1:n()<=1000)
+
+gly <- d1$gh
+ht <- d1$ht
+```
+
+# Glycohemoglobin
+
+## Nomral Distribution
+
+### Estimates of paramters
+
+```{r}
+# Method of Moments
+xbar <- mean(gly)
+xbar
+s2 <- var(gly)
+s2
+
+```
+
+### Overlay Estimated PDF onto Histogram
+
+```{r}
+# Method of Moments
+x <- rep(0, 10, by = 0.1)
+fglyg <- function(x){
+  dnorm(x, xbar, s2)
+}
+
+hist(gly,
+     freq = FALSE,
+     main = "Normal Glycohemoglobin MM",
+     breaks = 75)
+curve(fglyg(x),
+      add = TRUE,
+      col = "red",
+      lwd = 3,
+      main = "Normal Glycohemoglobin MM")
+
+# Maximum Likelihood
+hist(gly, freq = FALSE, main = "")
+curve(
+    dnorm(x, coef(fit)[1], coef(fit)[2])
+  , add = TRUE
+  , col = "green"
+  , lwd = 3
+)
+```
+
+### Overlay Estimated CDF onto ECDF
+
+```{r}
+# Method of Moments
+
+
+# Maximum Likelihood
+plot(ecdf(gly), main = "")
+curve(
+    pnorm(x, coef(fit)[1], coef(fit)[2])
+  , add = TRUE
+  , col = "green"
+  , lwd = 3
+)
+```
+
+### QQ Plot
+
+```{r}
+
+```
+
+### Estimated Median
+
+```{r}
+
+```
+
+# Gamma Distribution
+
+### Estimates of paramters
+
+```{r}
+# Method of Moments
+xbar <- mean(gly)
+s2 <- var(gly)
+
+shape_hat <- xbar^2/s2
+shape_hat
+scale_hat <- s2/xbar
+scale_hat
+
+# Maximum Likelihood
+
+```
+
+### Overlay Estimated PDF onto Histogram
+
+```{r}
+# Method of Moments
+fglyg <- function(x){
+  dgamma(x,
+         shape = shape_hat,
+         scale = scale_hat)
+}
+
+x <- rep(0, 10, by = 0.1)
+hist(gly,
+     freq = FALSE,
+     main = "Glycohemoglobin MM",
+     breaks = 75)
+curve(fglyg(x),
+      add = TRUE,
+      col = "red",
+      lwd = 3,
+      main = "Glycohemoglobin MM")
+
+
+# Maximum Likelihood
+hist(gly, freq = FALSE, main = "")
+curve(
+    dgamma(x, coef(fit)[1], coef(fit)[2])
+  , add = TRUE
+  , col = "green"
+  , lwd = 3
+)
+```
+
+### Overlay Estimated CDF onto ECDF
+
+```{r}
+# Method of Moments
+Fglyg <- function(x){
+  pgamma(x,
+         shape = shape_hat,
+         scale = scale_hat)
+}
+
+x <- rep(0, 10, by = 0.1)
+plot(ecdf(gly),
+     main = "Glycohemoglobin MM")
+curve(Fglyg(x),
+      add = TRUE,
+      col = "red",
+      lwd = 3,
+      main = "Glycohemoglobin MM")
+
+# Maximum Likelihood
+plot(ecdf(bmi), main = "")
+curve(
+    pgamma(x, coef(fit)[1], coef(fit)[2])
+  , add = TRUE
+  , col = "green"
+  , lwd = 3
+)
+```
+
+### QQ Plot
+
+```{r}
+
+```
+
+### Estimated Median
+
+```{r}
+
+```
+
+# Weibull Distribution
+
+### Estimates of paramters
+
+```{r}
+
+```
+
+### Overlay Estimated PDF onto Histogram
+
+```{r}
+
+```
+
+### Overlay Estimated CDF onto ECDF
+
+```{r}
+
+```
+
+### QQ Plot
+
+```{r}
+
+```
+
+### Estimated Median
+
+```{r}
+
+```
+
+# Height
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
