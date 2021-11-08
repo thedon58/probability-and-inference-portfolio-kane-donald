@@ -6,24 +6,26 @@ output: html_document
 ### Donald Kane
 ### October 11, 2021
 
-# Part 1
-
-### Gamma Distribution
+# Introduction
 
 ```{r message=FALSE}
 library(ggplot2)
 library(dplyr)
 ```
 
+# Part 1
+
+## Gamma Distribution
+
+X ~ Gamma(shape = 3, scale = 1)
+
+### Gamma Distribution Probability Density Function
 
 ```{r}
 x <- seq(0,10, by = 0.1)
 g_PDF <- dgamma(x, shape = 3, scale = 1)
 g_CDF <- pgamma(x, shape = 3, scale = 1)
-g_log_PDF <- log(dgamma(x, shape = 3, scale = 1))
-g_log_CDF <- log(pgamma(x, shape = 3, scale = 1))
-
-df <- data.frame(x, g_PDF, g_CDF, g_log_PDF, g_log_CDF)
+df <- data.frame(x, g_PDF, g_CDF)
 
 ggplot(df, aes(x = x)) +
         geom_line(y = g_PDF) +
@@ -32,7 +34,8 @@ ggplot(df, aes(x = x)) +
                    color = "mean")) +
         geom_vline(aes(xintercept = qgamma(0.5, shape = 3, scale = 1),
                    color = "median")) +
-        theme_bw() +
+        theme_classic() +
+        ylim(0,0.5) +
         labs(
                 title = "Gamma Distribution PDF",
                 x = "x",
@@ -40,6 +43,13 @@ ggplot(df, aes(x = x)) +
         ) +
         scale_color_manual(name = "Statistics", 
                            values = c(median = "green", mean = "red"))
+```
+
+### Gamma Distribution Cummulative Density Function
+
+```{r}
+x <- seq(0,10, by = 0.1)
+g_CDF <- pgamma(x, shape = 3, scale = 1)
 
 ggplot(df, aes(x = x)) +
         geom_line(y = g_CDF) +
@@ -48,7 +58,8 @@ ggplot(df, aes(x = x)) +
                    color = "mean")) +
         geom_vline(aes(xintercept = qgamma(0.5, shape = 3, scale = 1),
                    color = "median")) +
-        theme_bw() +
+        theme_classic() +
+        ylim(0,1) +
         labs(
                 title = "Gamma Distribution CDF",
                 x = "x",
@@ -56,18 +67,78 @@ ggplot(df, aes(x = x)) +
         ) +
         scale_color_manual(name = "Statistics", 
                            values = c(median = "green", mean = "red"))
-
-#plot(x, g_log_PDF, type = "l", abline())
 ```
 
-### Log Normal Distribution
+### Gamma Log Distribution Probability Density Function
+
+```{r}
+g_log <- log(rgamma(1000, shape = 3, scale = 1))
+
+plot(density(g_log), type = "l", 
+     main = "Log Gamma Probability Density Function")
+abline(v = mean(g_log), col= 'red')
+abline(v = median(g_log), col = "green")
+legend('topleft', c('mean', 'median'),
+       col = c('red', 'green'), lty = c(1, 1))
+```
+
+### Gamma Log Distribution Cummulative Density Function
+
+```{r}
+g_log <- log(rgamma(1000, shape = 3, scale = 1))
+
+plot(ecdf(g_log), main = "Log Gamma Cummulative Density Function")
+abline(v = mean(g_log), col= 'red')
+abline(v = median(g_log), col = "green")
+legend('bottomright', 
+       c('mean', 'median'),
+       col = c('red', 'green'), 
+       lty = c(1, 1))
+
+```
+
+### Gamma Geometric and Arithmetic Means
+
+```{r}
+geometric = rep(NA, 1000)
+arithmetic = rep(NA, 1000)
+difference = rep(NA, 1000)
+
+for (i in 1:1000){
+  q = rgamma(100, shape = 3, scale = 1)
+  
+  arithmetic[i] = mean(q)
+  geometric[i] = exp(mean(log(q)))
+  difference[i] = abs(arithmetic[i] - geometric[i])
+}
+
+avgs = data.frame(arithmetic, geometric, difference)
+
+ggplot(avgs, aes(x = geometric, y = arithmetic)) +
+        geom_point() +
+        geom_abline() +
+        labs(x = 'Geometric Means',
+             y = 'Arithmetic Means',
+             title = 'Geometric vs. Arithmetic Means')
+
+ggplot(avgs, aes(x = difference)) +
+        geom_histogram() +
+        labs(x = 'Difference',
+             y = 'Frequency',
+             title = 'Mean Differences')
+```
 
 
+## Log Normal Distribution
+
+X ~ log Normal(mean = -1, standard deviation = 1)
+
+### Log Normal Distribution Probability Density Function
 
 ```{r message=FALSE, warning=FALSE}
 x1 <- seq(0,10, by = 0.1)
-ln_PDF <- dlnorm(x1, meanlog = -1, sdlog = 1)
-ln_CDF <- plnorm(x1, meanlog = -1, sdlog = 1)
+ln_PDF <- dlnorm(x1, -1, 1)
+ln_CDF <- plnorm(x1, -1, 1)
 
 df1 <- data.frame(x1, ln_PDF, ln_CDF)
 
@@ -87,7 +158,11 @@ ggplot(df1, aes(x = x1)) +
         ylim(0,2)
         scale_color_manual(name = "Statistics", 
                            values = c(median = "green", mean = "red"))
+```
 
+### Log Normal Distribution Cummulative Density Function
+
+```{r}
 ggplot(df1, aes(x = x1)) +
         geom_line(y = ln_CDF) +
         geom_vline(aes(xintercept = mean(rlnorm(1000, 
@@ -106,16 +181,77 @@ ggplot(df1, aes(x = x1)) +
                            values = c(median = "green", mean = "red"))
 ```
 
-### Uniform Distribution
+### Log Normal Distribution Cummulative Density Function
+
+```{r}
+lg_norm <- log(rlnorm(1000, -1, 1))
+
+plot(density(lg_norm), type = 'l', main = 'Log Normal Distribution Probability Density Function')
+abline(v = mean(lg_norm), col = 'red')
+abline(v = median(lg_norm), col = 'green')
+legend('topleft', 
+       c('mean', 'median'), 
+       col = c('red', 'green'), 
+       lty = c(1, 1))
+```
+
+### Log Normal Distribution Cummulative Density Function
+
+```{r}
+lg_norm <- log(rlnorm(1000, -1, 1))
+
+plot(ecdf(lg_norm), main = "Log Normal Cummulative Density Function")
+abline(v = mean(lg_norm), col= 'red')
+abline(v = median(lg_norm), col = "green")
+legend('topleft', 
+       c('mean', 'median'),
+       col = c('red', 'green'), 
+       lty = c(1, 1))
+```
+
+### Log Normal Geometric and Arithmetic Means
+
+```{r}
+geometric = rep(NA, 1000)
+arithmetic = rep(NA, 1000)
+difference = rep(NA, 1000)
+
+for (i in 1:1000){
+  q = rlnorm(100, -1, 1)
+  
+  arithmetic[i] = mean(q)
+  geometric[i] = exp(mean(log(q)))
+  difference[i] = abs(arithmetic[i] - geometric[i])
+}
+
+avgs = data.frame(arithmetic, geometric, difference)
+
+ggplot(avgs, aes(x = geometric, y = arithmetic)) +
+        geom_point() +
+        geom_abline() +
+        labs(x = 'Geometric Means',
+             y = 'Arithmetic Means',
+             title = 'Geometric vs. Arithmetic Means')
+
+ggplot(avgs, aes(x = difference)) +
+        geom_histogram() +
+        labs(x = 'Difference',
+             y = 'Frequency',
+             title = 'Mean Differences')
+```
+
+
+## Uniform Distribution
+
+X ~ Uniform(min = 0, max = 12)
+
+### Uniform Distribution Probability Density Function
 
 ```{r}
 x2 <- seq(-1,13, by = 0.1)
 u_PDF <- dunif(x2, min = 0, max = 12)
 u_CDF <- punif(x2, min = 0, max = 12)
-u_log_PDF <- log(dunif(x2, min = 0, max = 12))
-u_log_CDF <- log(punif(x2, min = 0, max = 12))
-
-df2 <- data.frame(x2, u_PDF, u_CDF, u_log_PDF, u_log_CDF)
+df2 <- data.frame(x2, u_PDF, u_CDF)
 
 ggplot(df2, aes(x = x2)) +
         geom_line(y = u_PDF) +
@@ -123,15 +259,23 @@ ggplot(df2, aes(x = x2)) +
                    color = "mean")) +
         geom_vline(aes(xintercept = qunif(0.5, 0, 12),
                    color = "median")) +
-        theme_bw() +
+        theme_classic() +
         labs(
                 title = "Uniform Distribution PDF",
                 x = "x",
                 y = "x ~ Uniform(0, 12)"
         ) +
-        ylim(0,1) +
+        ylim(0,0.25) +
         scale_color_manual(name = "Statistics", 
                            values = c(median = "green", mean = "red"))
+```
+
+### Uniform Distribution Cummulative Density Function
+
+```{r}
+x2 <- seq(-1,13, by = 0.1)
+u_CDF <- punif(x2, min = 0, max = 12)
+df2 <- data.frame(x2, u_PDF, u_CDF)
 
 ggplot(df2, aes(x = x2)) +
         geom_line(y = u_CDF) +
@@ -139,7 +283,7 @@ ggplot(df2, aes(x = x2)) +
                    color = "mean")) +
         geom_vline(aes(xintercept = qunif(0.5, 0, 12),
                    color = "median")) +
-        theme_bw() +
+        theme_classic() +
         labs(
                 title = "Uniform Distribution CDF",
                 x = "x",
@@ -151,15 +295,128 @@ ggplot(df2, aes(x = x2)) +
 
 ```
 
+### Log Uniform Distribution Probability Density Function
 
-# Part 2
+```{r}
+lg_unif <- log(runif(1000, 0, 12))
 
+plot(density(lg_unif), type = 'l', main = 'Log Uniform Distribution Probability Density Function')
+abline(v = mean(lg_unif), col = 'red')
+abline(v = median(lg_unif), col = 'green')
+legend('topleft', 
+       c('mean', 'median'), 
+       col = c('red', 'green'), 
+       lty = c(1, 1))
+```
 
+### Log Uniform Distribution Cummulative Density Function
 
+```{r}
+lg_unif <- log(runif(1000, 0, 12))
 
+plot(ecdf(lg_unif), main = "Log Normal Cummulative Density Function")
+abline(v = mean(lg_unif), col= 'red')
+abline(v = median(lg_unif), col = "green")
+legend('topleft', 
+       c('mean', 'median'),
+       col = c('red', 'green'), 
+       lty = c(1, 1))
+```
 
+### Log Normal Geometric and Arithmetic Means
 
+```{r}
+geometric = rep(NA, 1000)
+arithmetic = rep(NA, 1000)
+difference = rep(NA, 1000)
 
+for (i in 1:1000){
+  q = runif(100, 0, 12)
+  
+  arithmetic[i] = mean(q)
+  geometric[i] = exp(mean(log(q)))
+  difference[i] = abs(arithmetic[i] - geometric[i])
+}
 
+avgs = data.frame(arithmetic, geometric, difference)
 
+ggplot(avgs, aes(x = geometric, y = arithmetic)) +
+        geom_point() +
+        geom_abline() +
+        labs(x = 'Geometric Means',
+             y = 'Arithmetic Means',
+             title = 'Geometric vs. Arithmetic Means')
 
+ggplot(avgs, aes(x = difference)) +
+        geom_histogram() +
+        labs(x = 'Difference',
+             y = 'Frequency',
+             title = 'Mean Differences')
+```
+
+# Part 3
+
+What is the correct relationship between E[log(X)] and log(E[X])?
+
+### Gamma
+
+Based on the results below, we see the distribution is mostly in the negatives which allows us to say that the logarithm of the expected value of x is greater than the expected value of log(x) for the gamma distribution.
+
+```{r}
+expect_lg = rep(NA, 1000)
+lg_expect = rep(NA, 1000)
+
+for (i in 1:1000){
+  q = rgamma(10000, shape = 3, scale = 1)
+  expect_lg[i] = mean(log(q))
+  lg_expect[i] = log(mean(q))
+}
+
+difference = expect_lg - lg_expect
+
+hist(difference, freq = FALSE, breaks = 50,
+     main = 'Difference between E[log(x)] and log(E[x])', 
+     xlab = 'E[log(x)] - log(E[x])')
+```
+
+### Log Normal
+
+Based on the results below, we see the distribution is mostly in the negatives which allows us to say that the logarithm of the expected value of x is greater than the expected value of log(x) for the log normal distribution.
+
+```{r}
+expect_lg = rep(NA, 1000)
+lg_expect = rep(NA, 1000)
+
+for (i in 1:1000){
+  q = rlnorm(10000, -1, 1)
+  expect_lg[i] = mean(log(q))
+  lg_expect[i] = log(mean(q))
+}
+
+difference = expect_lg - lg_expect
+
+hist(difference, freq = FALSE, breaks = 50,
+     main = 'Difference between E[log(x)] and log(E[x])', 
+     xlab = 'E[log(x)] - log(E[x])')
+```
+
+### Uniform
+
+Based on the results below, we see the distribution is mostly in the negatives which allows us to say that the logarithm of the expected value of x is greater than the expected value of log(x) for the uniform distribution.
+
+```{r}
+expect_lg = rep(NA, 1000)
+lg_expect = rep(NA, 1000)
+
+for (i in 1:1000){
+  q = runif(10000, 0, 12)
+  expect_lg[i] = mean(log(q))
+  lg_expect[i] = log(mean(q))
+}
+
+difference = expect_lg - lg_expect
+
+hist(difference, freq = FALSE, breaks = 50,
+     main = 'Difference between E[log(x)] and log(E[x])', 
+     xlab = 'E[log(x)] - log(E[x])')
+```
