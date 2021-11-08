@@ -30,59 +30,75 @@ ht <- d1$ht
 # Method of Moments
 xbar <- mean(gly)
 xbar
-s2 <- var(gly)
-s2
-
+stdev <- sd(gly)
+stdev
 ```
 
 ### Overlay Estimated PDF onto Histogram
 
 ```{r}
 # Method of Moments
-x <- rep(0, 10, by = 0.1)
-fglyg <- function(x){
-  dnorm(x, xbar, s2)
+fglyn <- function(x){
+  dnorm(x, xbar, stdev)
 }
-
 hist(gly,
      freq = FALSE,
      main = "Normal Glycohemoglobin MM",
-     breaks = 75)
-curve(fglyg(x),
+     breaks = 50)
+curve(fglyn(x),
       add = TRUE,
       col = "red",
       lwd = 3,
       main = "Normal Glycohemoglobin MM")
 
 # Maximum Likelihood
-hist(gly, freq = FALSE, main = "")
-curve(
-    dnorm(x, coef(fit)[1], coef(fit)[2])
-  , add = TRUE
-  , col = "green"
-  , lwd = 3
-)
+#hist(gly, freq = FALSE, main = "")
+#curve(
+ #   dnorm(x, coef(fit)[1], coef(fit)[2])
+  #, add = TRUE
+  #, col = "green"
+  #, lwd = 3
+#)
+
 ```
 
 ### Overlay Estimated CDF onto ECDF
 
 ```{r}
 # Method of Moments
-
+Fglyn <- function(x){
+  pnorm(x, xbar, stdev)
+}
+plot(ecdf(gly),
+     main = "Normal Glycohemoglobin MM")
+curve(Fglyn(x),
+      add = TRUE,
+      col = "red",
+      lwd = 3,
+      main = "Normal Glycohemoglobin MM")
 
 # Maximum Likelihood
-plot(ecdf(gly), main = "")
-curve(
-    pnorm(x, coef(fit)[1], coef(fit)[2])
-  , add = TRUE
-  , col = "green"
-  , lwd = 3
-)
+#plot(ecdf(gly), main = "")
+#curve(
+#    pnorm(x, coef(fit)[1], coef(fit)[2])
+#  , add = TRUE
+#  , col = "green"
+#  , lwd = 3
+#)
 ```
 
 ### QQ Plot
 
 ```{r}
+###
+#U <- rnorm(1000)
+#Y <- qnorm(U, xbar, stdev)
+#ps <- ppoints(1000)
+#theoretical <- qnorm(ps, xbar, stdev)
+#sample <- quantile(Y, ps)
+#plot(theoretical, sample)
+#abline(0,1)
+#qnorm(U, xbar, stdev)
 
 ```
 
@@ -97,7 +113,6 @@ curve(
 ### Estimates of paramters
 
 ```{r}
-# Method of Moments
 xbar <- mean(gly)
 s2 <- var(gly)
 
@@ -105,9 +120,6 @@ shape_hat <- xbar^2/s2
 shape_hat
 scale_hat <- s2/xbar
 scale_hat
-
-# Maximum Likelihood
-
 ```
 
 ### Overlay Estimated PDF onto Histogram
@@ -120,26 +132,25 @@ fglyg <- function(x){
          scale = scale_hat)
 }
 
-x <- rep(0, 10, by = 0.1)
 hist(gly,
      freq = FALSE,
-     main = "Glycohemoglobin MM",
+     main = "Gamma Glycohemoglobin MM",
      breaks = 75)
 curve(fglyg(x),
       add = TRUE,
       col = "red",
       lwd = 3,
-      main = "Glycohemoglobin MM")
+      main = "Gamma Glycohemoglobin MM")
 
 
 # Maximum Likelihood
-hist(gly, freq = FALSE, main = "")
-curve(
-    dgamma(x, coef(fit)[1], coef(fit)[2])
-  , add = TRUE
-  , col = "green"
-  , lwd = 3
-)
+#hist(gly, freq = FALSE, main = "")
+#curve(
+#    dgamma(x, coef(fit)[1], coef(fit)[2])
+#  , add = TRUE
+#  , col = "green"
+#  , lwd = 3
+#)
 ```
 
 ### Overlay Estimated CDF onto ECDF
@@ -152,23 +163,22 @@ Fglyg <- function(x){
          scale = scale_hat)
 }
 
-x <- rep(0, 10, by = 0.1)
 plot(ecdf(gly),
-     main = "Glycohemoglobin MM")
+     main = "Gamma Glycohemoglobin MM")
 curve(Fglyg(x),
       add = TRUE,
       col = "red",
       lwd = 3,
-      main = "Glycohemoglobin MM")
+      main = "Gamma Glycohemoglobin MM")
 
 # Maximum Likelihood
-plot(ecdf(bmi), main = "")
-curve(
-    pgamma(x, coef(fit)[1], coef(fit)[2])
-  , add = TRUE
-  , col = "green"
-  , lwd = 3
-)
+#plot(ecdf(bmi), main = "")
+#curve(
+#    pgamma(x, coef(fit)[1], coef(fit)[2])
+#  , add = TRUE
+#  , col = "green"
+#  , lwd = 3
+#)
 ```
 
 ### QQ Plot
@@ -188,19 +198,53 @@ curve(
 ### Estimates of paramters
 
 ```{r}
+xbar <- mean(gly)
+s2 <- var(gly)
 
+shape_hat <- xbar^2/s2
+shape_hat
+scale_hat <- s2/xbar
+scale_hat
 ```
 
 ### Overlay Estimated PDF onto Histogram
 
 ```{r}
+# Method of Moments
+fglyw <- function(x){
+  dweibull(x,
+         shape = shape_hat,
+         scale = scale_hat)
+}
+
+hist(gly,
+     freq = FALSE,
+     main = "Gamma Glycohemoglobin MM",
+     breaks = 75)
+curve(fglyg(x),
+      add = TRUE,
+      col = "red",
+      lwd = 3,
+      main = "Gamma Glycohemoglobin MM")
 
 ```
 
 ### Overlay Estimated CDF onto ECDF
 
 ```{r}
+Fglyw <- function(x){
+  pweibull(x,
+         shape = shape_hat,
+         scale = scale_hat)
+}
 
+plot(ecdf(gly),
+     main = "Gamma Glycohemoglobin MM")
+curve(Fglyg(x),
+      add = TRUE,
+      col = "red",
+      lwd = 3,
+      main = "Gamma Glycohemoglobin MM")
 ```
 
 ### QQ Plot
