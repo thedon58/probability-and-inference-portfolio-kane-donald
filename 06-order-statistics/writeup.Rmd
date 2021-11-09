@@ -1,7 +1,157 @@
 ---
-title: "Log Transformation"
+title: "Order Statistics"
 output: html_document
 ---
 
 ### Donald Kane
-### October 18, 2021
+### November 1, 2021
+
+```{r message=FALSE}
+library(dplyr)
+library(tidyverse)
+```
+
+
+# Density Function for Median
+
+```{r}
+dorder <- function(x){
+  100 * choose(200,100) * (pnorm(x))^(100-1) * (1-pnorm(x))^(200-100) * dnorm(x)
+}
+
+curve(dorder(x), -0.5, 0.5, main = "Density Function for Median", xlab = "Median at x = 100", ylab = "Density")
+```
+
+# Probability Function for Median
+
+```{r}
+porder <- function(x){
+  pbinom(100-1, 200, pnorm(x), lower.tail = FALSE)
+}
+curve(porder(x), -0.5, 0.5, main = "Probability for Median", 
+      xlab = "X(100)", ylab = "Probability")
+```
+
+# Quantile Function for Median
+
+```{r}
+qorder <- function(p){
+  out <- p
+  for (i in seq_along(p)){
+    out[i] <- uniroot(function(x){
+      porder(x) - p[i]
+      },
+      c(-100,100))$root
+  }
+  out
+}
+
+p <- seq(0.01, 0.99, by = 0.01)
+plot(p,
+     qorder(p),
+     type="l",
+     ylim=c(-2,2),
+     ylab="Quantile",
+     lwd=3,
+     main = "Quantile Function for Median")
+lines(p,
+      qnorm(p),
+      col="green",
+      lwd=3)
+legend("topleft",
+       c("Median","Normal"),
+       col = c("black","green"), 
+       lwd = 3)
+```
+
+# Sampling Distribution for Median Simulation
+
+```{r}
+sample <- array(rnorm(1000000, 0, 1), c(5000, 200))
+meds <- sample %>% 
+  apply(1, median)
+plot(ecdf(meds),
+     xlab = "CDF Median",
+     main = "Sampling Distribution for Median")
+curve(porder(x), lwd = 2, add = TRUE, col = "green")
+legend("topleft",
+       c("Simulation","Theoretical"), 
+       col = c("black", "green"), 
+       lwd = 3)
+```
+
+# Histogram & Density Function
+
+```{r}
+hist(meds, breaks = 100, freq = FALSE, 
+     main = "Density of Medians",
+     xlab = "Medians")
+curve(dorder(x), col = "green", add = TRUE, lw = 3)
+```
+
+# QQ Plot
+
+```{r}
+
+```
+
+# K^th Order Statistic
+
+```{r}
+
+```
+
+# QQ Plot for Sample Max
+
+```{r}
+
+```
+
+# Continuous Distribution
+
+```{r}
+
+```
+
+# Probability and Density Functions for Sample Min
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
