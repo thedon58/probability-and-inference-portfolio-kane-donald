@@ -85,10 +85,10 @@ legend("topleft",
 
 # Sampling Distribution for Median Simulation
 
-To create the sampling distribution for the median, we will create a plot of the empirical cumulative distribution function and then overlay this plot ontop of the theoretical CDF to compare. We will run a simulation with 1000 random samples of N = 200. Based on the graph below, we can see some very slight differences between the simulation and theoretical plots, but they are mostly similar. Increasing the simulations will only bring the black and green lines closer together, meaning the simulation will began to closer mimic the theoretical CDF.
+To create the sampling distribution for the median, we will create a plot of the empirical cumulative distribution function and then overlay this plot ontop of the theoretical CDF to compare. We will run a simulation with 10000 random samples of N = 200. Based on the graph below, we can see some very slight differences between the simulation and theoretical plots, but they are mostly similar. Increasing the simulations will only bring the black and green lines closer together, meaning the simulation will began to closer mimic the theoretical CDF.
 
 ```{r}
-samp <- array(rnorm(200 * 1000, 0, 1), c(1000, 200))
+samp <- array(rnorm(200 * 10000, 0, 1), c(10000, 200))
 meds <- samp %>% 
   apply(1, median)
 plot(ecdf(meds),
@@ -103,7 +103,7 @@ legend("topleft",
 
 # Histogram & Density Function
 
-
+Using the simulation from above, we will take the medians from each of the 1000 runs and create a histogram. The density function for the median will be added to show that the medians from the simulation should follow the distribution of the data. Using our *dorder* function (probability function) we can see how well the probability density function for the median fits our data. We see that the overwhelming majority of the medians is right at or around 0, which we expected to see due to the data coming from a normally distributed dataset.
 
 ```{r}
 hist(meds, breaks = 100, freq = FALSE, 
@@ -112,7 +112,9 @@ hist(meds, breaks = 100, freq = FALSE,
 curve(dorder(x), col = "green", add = TRUE, lw = 3)
 ```
 
-# QQ Plot
+# Q-Q Plot for Sample Median
+
+Q-Q plots are used to compare two probability distributions by plotting their quantiles against each other. We will use a Q-Q plot to compare our theoretical distribution and simulated distribution, with theoretical quantiles on the X-axis and the simulated quantiles on the Y-axis. We will be using the quantile function, *qorder*, to represent the theoretical data and our *meds* value from above to represent the simulated data. The plot below, a straight line with very little variation between -0.2 and 0.2 for both axes, tells us that our simulation is a good match for the theoretical data and follows the same distribution.
 
 ```{r}
 p <- seq(0.01, 0.99, by = 0.01)
@@ -122,7 +124,7 @@ y_meds <- quantile(meds, seq(0.01, 0.99, by = 0.01))
 qqplot(x_meds, y_meds,
        main = "Q-Q Plot for Median",
        xlab = "Theoretical Quantile", 
-       ylab = "Sample Quantile")
+       ylab = "Simulation Quantile")
 ```
 
 # K^th Order Statistic
@@ -148,17 +150,21 @@ qorderk <- function(p, k){
 }
 ```
 
-# QQ Plot for Sample Max
+# Q-Q Plot for Sample Max
+
+After adjusting our *qorder* function to be able to be used for more than just the median, we now have our *qorderk* function to be used for other measures. To create a Q-Q plot, we will compare our theoretical distribution and simulated distribution, with theoretical quantiles on the X-axis and the simulated quantiles on the Y-axis. Using the *qorderk* function, k will equal 200 to represent the maximum value in a dataset where N = 200 to represent the theoretical quantiles and the simulation quantiles will be represented by our *maxs* value. We can see from the Q-Q plot below that the quantiles are a good match and that leads us to believe that the simulated data is a good match for the theoretical data.
 
 ```{r}
 p <- seq(0.01, 0.99, by = 0.01)
-
+samp <- array(rnorm(200 * 10000, 0, 1), c(10000, 200))
+maxs <- samp %>% 
+  apply(1, max)
 x <- qorderk(p, 200)
-y <- quantile(meds, seq(0.01, 0.99, by = 0.01))
+y <- quantile(maxs, seq(0.01, 0.99, by = 0.01))
 qqplot(x, y,
        main = "Q-Q Plot for Max",
        xlab = "Theoretical Quantile", 
-       ylab = "Sample Quantile")
+       ylab = "Simulation Quantile")
 ```
 
 # Continuous Distribution
@@ -173,7 +179,7 @@ qqplot(x, y,
 
 ```
 
-
+# Conclusions
 
 
 
