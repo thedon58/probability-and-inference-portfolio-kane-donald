@@ -11,8 +11,20 @@ library(dplyr)
 library(tidyverse)
 ```
 
+# Introduction
+
+Order Statistics are when we have a set of random variables, *X~1~*, *X~2~*,..., *X~N~* that are IID (independent and identically distributed). These values are in ascending order and can be used to describe the distribution of the data. In this deliverable I will use order statistics to show how they can be useful in how we perceive any given distribution.
+
+# Background
+
+To use order statistics to describe data and their distributions, you need to know which order represents which descriptive measure. For instance, the first order statistic is represented by *X~1~* and is the minimum, while *X~N~* is the maximum. We can also find the median by finding which value is represented by *X~N/2~*. To prove that these order statistics are true to their nature, showing the density function, probability function, and quantile function are the best way.
 
 # Density Function for Median
+
+The Density function can be written as:
+$f_{(k)}(x) = k {n \choose x}[F(x)]^{k-1}[1 - F(x)]^{n-k}f(x)$
+
+When we write the formula as a function *dorder* and plot the probability density function, we see the graph below with a mean and median around 0. We can also see, and tell from the function below that includes *pnorm*, that the distribution is normally distributed.
 
 ```{r}
 dorder <- function(x){
@@ -24,6 +36,11 @@ curve(dorder(x), -0.5, 0.5, main = "Density Function for Median", xlab = "Median
 
 # Probability Function for Median
 
+The probability function can be written as:
+$F_{(k)}(x) = \sum_{j=k}^{N}{n \choose j}[F(x)]^{j}[1 - F(x)]^{n-j}$
+
+Very similar to the probability density function above and consistent with a normally distributed dataset (using *pnorm* in the function *porder*) we see once again a mean and median value of around 0. The cumulative density function below shows us that in a dataset of 200, the median is *X~(100)~*.
+
 ```{r}
 porder <- function(x){
   pbinom(100-1, 200, pnorm(x), lower.tail = FALSE)
@@ -33,6 +50,8 @@ curve(porder(x), -0.5, 0.5, main = "Probability for Median",
 ```
 
 # Quantile Function for Median
+
+In the quantile function *qorder* we used the *porder* function from above so we can expect to see results that mimmick those of a normal distribution. When looking at the graph, we can assume that like the two graphs above, our median is either 0 or right around 0. The majority of the probability is between -1 and 1, closer to 0, as we can see from the almost flat black line of the median.
 
 ```{r}
 qorder <- function(p){
@@ -66,9 +85,11 @@ legend("topleft",
 
 # Sampling Distribution for Median Simulation
 
+To create the sampling distribution for the median, we will create a plot of the empirical cumulative distribution function and then overlay this plot ontop of the theoretical CDF to compare. We will run a simulation with 1000 random samples of N = 200. Based on the graph below, we can see some very slight differences between the simulation and theoretical plots, but they are mostly similar. Increasing the simulations will only bring the black and green lines closer together, meaning the simulation will began to closer mimic the theoretical CDF.
+
 ```{r}
-sample <- array(rnorm(1000000, 0, 1), c(5000, 200))
-meds <- sample %>% 
+samp <- array(rnorm(200 * 1000, 0, 1), c(1000, 200))
+meds <- samp %>% 
   apply(1, median)
 plot(ecdf(meds),
      xlab = "CDF Median",
@@ -82,6 +103,8 @@ legend("topleft",
 
 # Histogram & Density Function
 
+
+
 ```{r}
 hist(meds, breaks = 100, freq = FALSE, 
      main = "Density of Medians",
@@ -92,19 +115,50 @@ curve(dorder(x), col = "green", add = TRUE, lw = 3)
 # QQ Plot
 
 ```{r}
+p <- seq(0.01, 0.99, by = 0.01)
 
+x_meds <- qorder(p)
+y_meds <- quantile(meds, seq(0.01, 0.99, by = 0.01))
+qqplot(x_meds, y_meds,
+       main = "Q-Q Plot for Median",
+       xlab = "Theoretical Quantile", 
+       ylab = "Sample Quantile")
 ```
 
 # K^th Order Statistic
 
 ```{r}
+dorderk <- function(x, k){
+  k * choose(200, k) * (pnorm(x))^(k - 1) * (1-pnorm(x))^(200 - k) * dnorm(x)
+}
 
+porderk <- function(x, k){
+  pbinom(k - 1, 200, pnorm(x), lower.tail = FALSE)
+}
+
+qorderk <- function(p, k){
+  out <- p
+  for (i in seq_along(p)){
+    out[i] <- uniroot(function(x){
+      porderk(x, k) - p[i]
+      },
+      c(-100, 100))$root
+  }
+  out
+}
 ```
 
 # QQ Plot for Sample Max
 
 ```{r}
+p <- seq(0.01, 0.99, by = 0.01)
 
+x <- qorderk(p, 200)
+y <- quantile(meds, seq(0.01, 0.99, by = 0.01))
+qqplot(x, y,
+       main = "Q-Q Plot for Max",
+       xlab = "Theoretical Quantile", 
+       ylab = "Sample Quantile")
 ```
 
 # Continuous Distribution
