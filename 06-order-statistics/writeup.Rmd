@@ -166,54 +166,70 @@ qqplot(x, y,
        main = "Q-Q Plot for Max",
        xlab = "Theoretical Quantile", 
        ylab = "Simulation Quantile")
+<<<<<<< HEAD
 abline(0, 1)
+=======
+abline(0,1)
+>>>>>>> 98263d7fabf40920cad4bd63df2faf6161c071f9
 ```
 
-# Continuous Distribution
+# Distribution Modifications
+
+To modify the functions *dorderk*, *porderk*, and *qorderk* from above so that the functions take new parameters `dist` and `...` and work for any continuous distribution, we need to add a few parameters. Since we already modified the functions to find the *K^th* order statistics, we need to add **n** to represent the sample size and **dist** to depict the distribution. To make this work, we need to use the *paste0* function to combine the 'p' or 'd' to our distributions.
 
 ```{r}
+dorderk2 <- function(x, k, n, dist = "norm", ...){
+  pf <- get(paste0("p", dist))
+  df <- get(paste0("d", dist))
+  k * 
+    choose(n, k) * 
+    (pf(x, ...))^(k - 1) * 
+    (1-pf(x, ...))^(n - k) * 
+    df(x, ...)
+}
 
+porderk2 <- function(x, k, n, dist = "norm", ...){
+  pf <- get(paste0("p", dist))
+  pbinom(k - 1, n, pf(x, ...), lower.tail = FALSE)
+}
+
+qorderk2 <- function(x, k, n, dist = "norm", ...){
+  out <- p
+  for (i in seq_along(p)){
+    out[i] <- uniroot(function(x){
+      porderk2(x, k, n, dist, ...) - p[i]
+      },
+      c(-100, 100))$root
+  }
+  out
+}
 ```
 
 # Probability and Density Functions for Sample Min
 
+### Density For Sample Minimum
+
+Using the modified function above, *dorderk2* and plot the probability density function, we see the graph below. We can also see, and tell from the function below that includes *pnorm*, that the distribution is normally distributed with a minimum value (*1^st* order statistic) between -3 and -2.
+
 ```{r}
+curve(
+  dorderk2(x, k = 1, n = 200, dist = "norm"),
+  xlim = c(-5,0),
+  main = "Density for Sample Minimum",
+  xlab = "X[1]",
+  ylab = "Density"
+)
+
 
 ```
 
-# Conclusions
+### Probability For Sample Minimum
 
+Very similar to the probability density function above and consistent with a normally distributed dataset (using *pnorm* in the function *porderk2*) we see once again a mean and median value between -2 and -3. The cumulative density function below shows us that in a dataset of 200, the minimum is *X~(1)~*.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```{r}
+curve(porderk2(x, 1, 200, "norm"), 
+      xlim = c(-5, 0), 
+      main = "Probability for Minimum", 
+      xlab = "X(1)", ylab = "Probability")
+```
