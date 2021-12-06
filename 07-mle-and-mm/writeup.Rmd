@@ -9,8 +9,10 @@ output: html_document
 
 ```{r}
 require(dplyr)
-Hmisc::getHdata(nhgh)
-d1 <- nhgh %>% 
+require(data.table)
+d1 <- fread("https://biostat.app.vumc.org/wiki/pub/Main/DataSets/nhgh.tsv") %>% 
+  as.data.frame
+d1 <- d1 %>% 
   filter(sex == "female") %>% 
   filter(age >= 18) %>% 
   select(gh, ht) %>% 
@@ -20,92 +22,119 @@ gly <- d1$gh
 ht <- d1$ht
 ```
 
-# Glycohemoglobin
+#Method of Moments
 
-## Nomral Distribution
+## Normal Distribution
 
 ### Estimates of paramters
 
 ```{r}
-# Method of Moments
-xbar <- mean(gly)
-xbar
-stdev <- sd(gly)
-stdev
+# Height
+xbarh <- mean(d1$ht)
+xbarh
+stdevh <- sd(d1$ht)
+stdevh
+
+# Glycohemoglobin
+xbarg <- mean(d1$gh)
+xbarg
+stdevg <- sd(d1$gh)
+stdevg
+
 ```
 
 ### Overlay Estimated PDF onto Histogram
 
 ```{r}
-# Method of Moments
-fglyn <- function(x){
-  dnorm(x, xbar, stdev)
-}
-hist(gly,
+hist(d1$ht,
+     freq = FALSE,
+     main = "Normal Height MM",
+     breaks = 100)
+curve(dnorm(x,
+            mean = xbarh,
+            sd = stdevh),
+      add = TRUE,
+      col = "blue",
+      lwd = 3,
+      main = "Normal Height MM")
+
+hist(d1$gh,
      freq = FALSE,
      main = "Normal Glycohemoglobin MM",
-     breaks = 50)
-curve(fglyn(x),
+     breaks = 100)
+curve(dnorm(x,
+            mean = xbarg,
+            sd = stdevg),
       add = TRUE,
       col = "red",
       lwd = 3,
       main = "Normal Glycohemoglobin MM")
-
-# Maximum Likelihood
-#hist(gly, freq = FALSE, main = "")
-#curve(
- #   dnorm(x, coef(fit)[1], coef(fit)[2])
-  #, add = TRUE
-  #, col = "green"
-  #, lwd = 3
-#)
-
 ```
 
 ### Overlay Estimated CDF onto ECDF
 
 ```{r}
-# Method of Moments
-Fglyn <- function(x){
-  pnorm(x, xbar, stdev)
-}
-plot(ecdf(gly),
+plot(ecdf(d1$ht),
+     main = "Normal Height MM")
+curve(pnorm(x,
+            mean = xbarh,
+            sd = stdevh),
+      add = TRUE,
+      col = "blue",
+      lwd = 3,
+      main = "Normal Height MM")
+
+plot(ecdf(d1$gh),
      main = "Normal Glycohemoglobin MM")
-curve(Fglyn(x),
+curve(pnorm(x,
+            mean = xbarg,
+            sd = stdevg),
       add = TRUE,
       col = "red",
       lwd = 3,
       main = "Normal Glycohemoglobin MM")
-
-# Maximum Likelihood
-#plot(ecdf(gly), main = "")
-#curve(
-#    pnorm(x, coef(fit)[1], coef(fit)[2])
-#  , add = TRUE
-#  , col = "green"
-#  , lwd = 3
-#)
 ```
 
 ### QQ Plot
 
 ```{r}
-###
-#U <- rnorm(1000)
-#Y <- qnorm(U, xbar, stdev)
-#ps <- ppoints(1000)
-#theoretical <- qnorm(ps, xbar, stdev)
-#sample <- quantile(Y, ps)
-#plot(theoretical, sample)
-#abline(0,1)
-#qnorm(U, xbar, stdev)
+q_values <- seq(0.05, 0.95, length = 100)
+
+sampleh <- quantile(d1$ht, q_values)
+theoreticalh <- qnorm(q_values, mean = xbarh, 
+            sd = stdevh)
+plot(sampleh, theoreticalh, pch = 16, main = "Q-Q Plot Normal Heights (MM)")
+abline(0,1, col = "blue", lwd = 2)
+
+sampleg <- quantile(d1$gh, q_values)
+theoreticalg <- qnorm(q_values, mean = xbarg, 
+            sd = stdevg)
+plot(sampleg, theoreticalg, pch = 16, main = "Q-Q Plot Normal Glycohemoglobin (MM)")
+abline(0,1, col = "red", lwd = 2)
 
 ```
 
 ### Estimated Median
 
 ```{r}
+M <- 5000
+N <- 1000
 
+simh <- rnorm(N*M, mean = xbarh, 
+            sd = stdevh) %>% array(dim = c(M,N))
+sample_dist <- apply(simh, 1, median)
+hist(sample_dist, breaks = 50, main = "Normal Distribution of Medians \nHeights (MM)", xlab = "Median Height")
+abline(v = qnorm(.5, mean = xbarh, sd = stdevh),
+       lwd = 3, col = "blue")
+qnorm(.5, mean = xbarh, sd = stdevh)
+
+simg <- rnorm(N*M, mean = xbarg, 
+            sd = stdevg) %>% array(dim = c(M,N))
+sample_dist <- apply(simg, 1, median)
+hist(sample_dist, breaks = 50, main = "Normal Distribution of Medians \nGlycohemoglobin (MM)", xlab = "Median Glycohemoglobin")
+abline(v = qnorm(.5, mean = xbarg, sd = stdevg),
+       lwd = 3, col = "red")
+qnorm(.5, mean = xbarg, sd = stdevg)
 ```
 
 # Gamma Distribution
@@ -113,84 +142,110 @@ curve(Fglyn(x),
 ### Estimates of paramters
 
 ```{r}
-xbar <- mean(gly)
-s2 <- var(gly)
+# Height
+xbarh <- mean(d1$ht)
+stdevh <- var(d1$ht)
+shape_hath <- xbarh^2/stdevh
+scale_hath <- stdevh/xbarh
 
-shape_hat <- xbar^2/s2
-shape_hat
-scale_hat <- s2/xbar
-scale_hat
+# Glycohemoglobin
+xbarg <- mean(d1$gh)
+stdevg <- var(d1$gh)
+shape_hatg <- xbarg^2/stdevg
+scale_hatg <- stdevg/xbarg
 ```
 
 ### Overlay Estimated PDF onto Histogram
 
 ```{r}
-# Method of Moments
-fglyg <- function(x){
-  dgamma(x,
-         shape = shape_hat,
-         scale = scale_hat)
-}
+hist(d1$ht,
+     freq = FALSE,
+     main = "Gamma Height MM",
+     breaks = 75)
+curve(dgamma(x, shape = shape_hath, 
+            scale = scale_hath),
+      add = TRUE,
+      col = "blue",
+      lwd = 3,
+      main = "Gamma Height MM")
 
-hist(gly,
+hist(d1$gh,
      freq = FALSE,
      main = "Gamma Glycohemoglobin MM",
      breaks = 75)
-curve(fglyg(x),
+curve(dgamma(x, shape = shape_hatg, 
+            scale = scale_hatg),
       add = TRUE,
       col = "red",
       lwd = 3,
       main = "Gamma Glycohemoglobin MM")
-
-
-# Maximum Likelihood
-#hist(gly, freq = FALSE, main = "")
-#curve(
-#    dgamma(x, coef(fit)[1], coef(fit)[2])
-#  , add = TRUE
-#  , col = "green"
-#  , lwd = 3
-#)
 ```
 
 ### Overlay Estimated CDF onto ECDF
 
 ```{r}
-# Method of Moments
-Fglyg <- function(x){
-  pgamma(x,
-         shape = shape_hat,
-         scale = scale_hat)
-}
+plot(ecdf(d1$ht),
+     main = "Gamma Height MM")
+curve(pgamma(x,
+            shape = shape_hath,
+            scale = scale_hath),
+      add = TRUE,
+      col = "blue",
+      lwd = 3,
+      main = "Gamma Height MM")
 
-plot(ecdf(gly),
+plot(ecdf(d1$gh),
      main = "Gamma Glycohemoglobin MM")
-curve(Fglyg(x),
+curve(pgamma(x,
+            shape = shape_hatg,
+            scale = scale_hatg),
       add = TRUE,
       col = "red",
       lwd = 3,
       main = "Gamma Glycohemoglobin MM")
-
-# Maximum Likelihood
-#plot(ecdf(bmi), main = "")
-#curve(
-#    pgamma(x, coef(fit)[1], coef(fit)[2])
-#  , add = TRUE
-#  , col = "green"
-#  , lwd = 3
-#)
 ```
 
 ### QQ Plot
 
 ```{r}
+q_values <- seq(0.01, 0.99, length = 99)
 
+sampleh <- quantile(d1$ht, q_values)
+theoreticalh <- qgamma(q_values,
+                       shape = shape_hath,
+                       scale = scale_hath)
+plot(sampleh, theoreticalh, pch = 16, main = "Q-Q Plot Gamma Heights (MM)")
+abline(0,1, col = "blue", lwd = 2)
+
+sampleg <- quantile(d1$gh, q_values)
+theoreticalg <- qgamma(q_values, 
+                       shape = shape_hatg, 
+                       scale = scale_hatg)
+plot(sampleg, theoreticalg, pch = 16, main = "Q-Q Plot Gamma Glycohemoglobin (MM)")
+abline(0,1, col = "red", lwd = 2)
 ```
 
 ### Estimated Median
 
 ```{r}
+M <- 5000
+N <- 1000
 
+simh <- rgamma(N*M, scale = scale_hath, 
+            shape = shape_hath) %>% array(dim = c(M,N))
+sample_dist <- apply(simh, 1, median)
+hist(sample_dist, breaks = 50, main = "Gamma Distribution of Medians \nHeights (MM)", xlab = "Median Height")
+abline(v = qgamma(.5, scale = scale_hath, shape = shape_hath),
+       lwd = 3, col = "blue")
+qgamma(.5, shape = shape_hath, scale = scale_hath)
+
+simg <- rgamma(N*M, scale = scale_hatg, shape = shape_hatg) %>% 
+  array(dim = c(M,N))
+sample_dist <- apply(simg, 1, median)
+hist(sample_dist, breaks = 50, main = "Gamma Distribution of Medians \nGlycohemoglobin (MM)", xlab = "Median Glycohemoglobin")
+abline(v = qgamma(.5, scale = scale_hatg, shape = shape_hatg),
+       lwd = 3, col = "red")
+qgamma(.5, scale = scale_hatg, shape = shape_hatg)
 ```
 
 # Weibull Distribution
@@ -198,53 +253,19 @@ curve(Fglyg(x),
 ### Estimates of paramters
 
 ```{r}
-xbar <- mean(gly)
-s2 <- var(gly)
 
-shape_hat <- xbar^2/s2
-shape_hat
-scale_hat <- s2/xbar
-scale_hat
 ```
 
 ### Overlay Estimated PDF onto Histogram
 
 ```{r}
-# Method of Moments
-fglyw <- function(x){
-  dweibull(x,
-         shape = shape_hat,
-         scale = scale_hat)
-}
-
-hist(gly,
-     freq = FALSE,
-     main = "Gamma Glycohemoglobin MM",
-     breaks = 75)
-curve(fglyg(x),
-      add = TRUE,
-      col = "red",
-      lwd = 3,
-      main = "Gamma Glycohemoglobin MM")
 
 ```
 
 ### Overlay Estimated CDF onto ECDF
 
 ```{r}
-Fglyw <- function(x){
-  pweibull(x,
-         shape = shape_hat,
-         scale = scale_hat)
-}
 
-plot(ecdf(gly),
-     main = "Gamma Glycohemoglobin MM")
-curve(Fglyg(x),
-      add = TRUE,
-      col = "red",
-      lwd = 3,
-      main = "Gamma Glycohemoglobin MM")
 ```
 
 ### QQ Plot
@@ -259,11 +280,103 @@ curve(Fglyg(x),
 
 ```
 
-# Height
+# Maximum Likelihood
 
+## Normal Distribution
 
+### Estimates of paramters
 
+```{r}
 
+```
+
+### Overlay Estimated PDF onto Histogram
+
+```{r}
+
+```
+
+### Overlay Estimated CDF onto ECDF
+
+```{r}
+
+```
+
+### QQ Plot
+
+```{r}
+
+```
+
+### Estimated Median
+
+```{r}
+
+```
+
+## Gamma Distribution
+
+### Estimates of paramters
+
+```{r}
+
+```
+
+### Overlay Estimated PDF onto Histogram
+
+```{r}
+
+```
+
+### Overlay Estimated CDF onto ECDF
+
+```{r}
+
+```
+
+### QQ Plot
+
+```{r}
+
+```
+
+### Estimated Median
+
+```{r}
+
+```
+
+## Weibull Distribution
+
+### Estimates of paramters
+
+```{r}
+
+```
+
+### Overlay Estimated PDF onto Histogram
+
+```{r}
+
+```
+
+### Overlay Estimated CDF onto ECDF
+
+```{r}
+
+```
+
+### QQ Plot
+
+```{r}
+
+```
+
+### Estimated Median
+
+```{r}
+
+```
 
 
 
