@@ -125,6 +125,7 @@ qqplot(x_meds, y_meds,
        main = "Q-Q Plot for Median",
        xlab = "Theoretical Quantile", 
        ylab = "Simulation Quantile")
+abline(0,1)
 ```
 
 # K^th Order Statistic
@@ -165,6 +166,7 @@ qqplot(x, y,
        main = "Q-Q Plot for Max",
        xlab = "Theoretical Quantile", 
        ylab = "Simulation Quantile")
+abline(0, 1)
 ```
 
 # Continuous Distribution

@@ -1,0 +1,68 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+### Donald Kane
+### November , 2021
+
+# Introduction
+
+
+
+# Generate a Sample of Size N From a Known Distribution
+
+```{r}
+library(tgsify)
+
+N <- 201 # parameters
+
+generate_data <- function(N){ 
+  # Hard coded standard normal distribution
+  rnorm(N) 
+}
+
+data <- generate_data(N)
+head(data)
+```
+
+# Estimate Distribution
+
+```{r}
+est <- function(data){
+  mmean <- mean(data)
+  msd <- sd(data)
+  return(c(length(data), mmean, msd))
+}
+true.parameters %>% generate_data %>% est
+```
+
+
+# Approximate the Sampling Distribution of the Median
+
+```{r}
+
+```
+
+# 95% confidence interval
+
+```{r}
+
+```
+
+# Concept of Coverage Probability
+
+```{r}
+
+```
+
+
+# Simulation
+
+
+
+# Possible Changes
+
+
+
+
