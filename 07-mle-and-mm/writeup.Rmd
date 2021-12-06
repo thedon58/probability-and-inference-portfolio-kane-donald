@@ -7,9 +7,11 @@ output: html_document
 ### November 8, 2021
 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 require(dplyr)
 require(data.table)
+install.packages('EnvStats')
+library(EnvStats)
 d1 <- fread("https://biostat.app.vumc.org/wiki/pub/Main/DataSets/nhgh.tsv") %>% 
   as.data.frame
 d1 <- d1 %>% 
@@ -17,9 +19,6 @@ d1 <- d1 %>%
   filter(age >= 18) %>% 
   select(gh, ht) %>% 
   filter(1:n()<=1000)
-
-gly <- d1$gh
-ht <- d1$ht
 ```
 
 #Method of Moments
@@ -111,7 +110,6 @@ theoreticalg <- qnorm(q_values, mean = xbarg,
             sd = stdevg)
 plot(sampleg, theoreticalg, pch = 16, main = "Q-Q Plot Normal Glycohemoglobin (MM)")
 abline(0,1, col = "red", lwd = 2)
-
 ```
 
 ### Estimated Median
@@ -287,13 +285,31 @@ qgamma(.5, scale = scale_hatg, shape = shape_hatg)
 ### Estimates of paramters
 
 ```{r}
+nht <- enorm(d1$ht, method = "mle")
+nht$parameters[1]
+nht$parameters[2]
 
+ngh <- enorm(d1$gh, method = "mle")
+ngh$parameters[1]
+ngh$parameters[2]
 ```
 
 ### Overlay Estimated PDF onto Histogram
 
 ```{r}
+hist(d1$ht, breaks = 100, freq = FALSE, main = "Normal Height (MLE)", xlab = "Height")
+curve(dnorm(x, mean = nht$parameters[1], 
+            sd = nht$parameters[2]), 
+            col = "blue", 
+            lwd = 6,
+            add = TRUE)
 
+hist(d1$gh, breaks = 100, freq = FALSE, main = "Normal Glycohemoglobin (MLE)", xlab = "Glycohemoglobin")
+curve(dnorm(x, mean = ngh$parameters[1], 
+            sd = ngh$parameters[2]), 
+            col = "red", 
+            lwd = 6,
+            add = TRUE)
 ```
 
 ### Overlay Estimated CDF onto ECDF
@@ -351,31 +367,108 @@ qgamma(.5, scale = scale_hatg, shape = shape_hatg)
 ### Estimates of paramters
 
 ```{r}
+wht <- eweibull(d1$ht, method = "mle")
+wht$parameters[1]
+wht$parameters[2]
 
+wgh <- eweibull(d1$gh, method = "mle")
+wgh$parameters[1]
+wgh$parameters[2]
 ```
 
 ### Overlay Estimated PDF onto Histogram
 
 ```{r}
+hist(d1$ht, breaks = 100, freq = FALSE, main = "Weibull Height (MLE)", xlab = "Height")
+curve(dweibull(x, shape = wht$parameters[1], 
+            scale = wht$parameters[2]), 
+            col = "blue", 
+            lwd = 6,
+            add = TRUE)
 
+hist(d1$gh, breaks = 100, freq = FALSE, main = "Weibull Glycohemoglobin (MLE)", xlab = "Glycohemoglobin")
+curve(dweibull(x, shape = wgh$parameters[1], 
+            scale = wgh$parameters[2]), 
+            col = "red", 
+            lwd = 6,
+            add = TRUE)
 ```
 
 ### Overlay Estimated CDF onto ECDF
 
 ```{r}
+plot(ecdf(d1$ht),main = "Weibull Height MLE", xlab = "Height")
+curve(pweibull(
+  x, 
+  shape = wht$parameters[1], 
+  scale = wht$parameters[2] 
+), 
+add = TRUE, col = "blue", lwd = 2)
 
+plot(ecdf(d1$gh),main = "Weibull Glychohemoglobin MLE", xlab = "Height")
+curve(pweibull(
+  x, 
+  shape = wgh$parameters[1], 
+  scale = wgh$parameters[2] 
+), 
+add = TRUE, col = "red", lwd = 2)
 ```
 
 ### QQ Plot
 
 ```{r}
+q_values <- seq(0.05, 0.95, length = 100)
 
+sampleh <- quantile(d1$ht, q_values)
+theoreticalh <- qweibull(q_values, 
+  shape = wht$parameters[1], 
+  scale = wht$parameters[2] 
+)
+plot(sampleh, theoreticalh, pch = 16, main = "Q-Q Plot Weibull Heights (MLE)")
+abline(0,1, col = "blue", lwd = 2)
+
+sampleg <- quantile(d1$gh, q_values)
+theoreticalg <- qweibull(q_values, 
+  shape = wgh$parameters[1], 
+  scale = wgh$parameters[2] 
+)
+plot(sampleg, theoreticalg, pch = 16, main = "Q-Q Plot Weibull Glycohemoglobin (MLE)")
+abline(0,1, col = "red", lwd = 2)
 ```
 
 ### Estimated Median
 
 ```{r}
+M <- 5000
+N <- 1000
 
+simh <- rweibull(N*M,
+                 shape = wht$parameters[1], 
+                 scale = wht$parameters[2]) %>% 
+  array(dim = c(M,N))
+sample_dist <- apply(simh, 1, median)
+hist(sample_dist, breaks = 50, main = "Weibull Distribution of Medians \nHeights (MLE)", xlab = "Median Height")
+abline(v = qweibull(.5,
+                    shape = wht$parameters[1], 
+                    scale = wht$parameters[2]),
+       lwd = 3, col = "blue")
+qweibull(.5,
+      shape = wht$parameters[1], 
+      scale = wht$parameters[2])
+
+simg <- rweibull(N*M,
+                 shape = wgh$parameters[1], 
+                 scale = wgh$parameters[2]) %>% 
+  array(dim = c(M,N))
+sample_dist <- apply(simg, 1, median)
+hist(sample_dist, breaks = 50, main = "Weibull Distribution of Medians \nGlycohemoglobin (MLE)", xlab = "Median Glycohemoglobin")
+abline(v = qweibull(.5,
+                    shape = wgh$parameters[1], 
+                    scale = wgh$parameters[2]),
+       lwd = 3, col = "red")
+qweibull(.5,
+      shape = wgh$parameters[1], 
+      scale = wgh$parameters[2])
 ```
 
 
