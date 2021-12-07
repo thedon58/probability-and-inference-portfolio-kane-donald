@@ -1,10 +1,10 @@
 ---
-title: "Untitled"
+title: "Coverage Probability"
 output: html_document
 ---
 
 ### Donald Kane
-### November , 2021
+### November 29, 2021
 
 # Introduction
 
@@ -13,41 +13,49 @@ output: html_document
 # Generate a Sample of Size N From a Known Distribution
 
 ```{r}
-library(tgsify)
-
-N <- 201 # parameters
-
-generate_data <- function(N){ 
-  # Hard coded standard normal distribution
-  rnorm(N) 
-}
-
-data <- generate_data(N)
-head(data)
+set.seed(1234)
+N <- 201
+data <- rnorm(N)
+xbar <- mean(data)
+sdbar <- sd(data)
 ```
 
 # Estimate Distribution
 
 ```{r}
-est <- function(data){
-  mmean <- mean(data)
-  msd <- sd(data)
-  return(c(length(data), mmean, msd))
-}
-true.parameters %>% generate_data %>% est
+hist(data,
+     freq = FALSE,
+     main = "Probability Density Function",
+     breaks = 30,
+     xlab = "Sample Data")
+curve(dnorm(x,
+            mean = xbar,
+            sd = sdbar),
+      add = TRUE,
+      col = "red",
+      lwd = 3)
 ```
 
 
 # Approximate the Sampling Distribution of the Median
 
 ```{r}
-
+meds <- NA
+for (i in 1:N){
+  samples <- rnorm(
+    N, 
+    mean = xbar,
+    sd = sdbar)
+  meds[i] <- median(samples)
+}
+hist(meds, breaks = 50, main = "Distribution of \nEstimated Medians", xlab = "Estimated Medians")
+abline(v = mean(meds), lwd = 3, col = "red")
 ```
 
 # 95% confidence interval
 
 ```{r}
-
+quantile(meds, c(0.025, 1 - 0.025))
 ```
 
 # Concept of Coverage Probability
