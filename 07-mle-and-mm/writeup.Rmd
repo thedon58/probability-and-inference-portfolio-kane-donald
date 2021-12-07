@@ -142,14 +142,14 @@ qnorm(.5, mean = xbarg, sd = stdevg)
 # Height
 xbarh <- mean(d1$ht)
 stdevh <- var(d1$ht)
-shape_hath <- xbarh^2/stdevh
-scale_hath <- stdevh/xbarh
+(shape_hath <- xbarh^2/stdevh)
+(scale_hath <- stdevh/xbarh)
 
 # Glycohemoglobin
 xbarg <- mean(d1$gh)
 stdevg <- var(d1$gh)
-shape_hatg <- xbarg^2/stdevg
-scale_hatg <- stdevg/xbarg
+(shape_hatg <- xbarg^2/stdevg)
+(scale_hatg <- stdevg/xbarg)
 ```
 
 ### Overlay Estimated PDF onto Histogram
