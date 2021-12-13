@@ -13,11 +13,6 @@ library(dplyr)
 library(ggplot2)
 ```
 
-
-# Introduction
-
-
-
 # Generate a Sample of Size N From a Known Distribution
 
 To generate a sample, I used the `generate_data()` function below to produce a dataset using `rnorm()` with sample size N = 201.
@@ -74,7 +69,7 @@ curve(
   )
 ```
 
-To estimate this distribution, we used the `nLL()` function to produce the negative log likelihood for a standard normal distribution. We then used the `mle()` function (maximum likelihood estimation) to estimate the parameters of our data. The parameters defined below, `r mu_hat` and `r sigma_hat` signify our estimated mean and standard deviation, respectfully, of the data. Our estimated mean is a little more than 0 and our estimated standard deviation is right around 1, both very close to the true parameters of a standard normal distribution (mean = 0, standard deviation = 1).
+To estimate this distribution, we used the `nLL()` function to produce the negative log likelihood for a standard normal distribution. We then used the `mle()` function (maximum likelihood estimation) to estimate the parameters of our data. The parameters defined above, `r mu_hat` and `r sigma_hat` signify our estimated mean and standard deviation, respectfully, of the data. Our estimated mean is a little more than 0 and our estimated standard deviation is right around 1, both very close to the true parameters of a standard normal distribution (mean = 0, standard deviation = 1).
 
 # Approximate the Sampling Distribution of the Median
 
@@ -92,7 +87,7 @@ hist(meds, breaks = 50, main = "Distribution of \nEstimated Medians", xlab = "Es
 abline(v = mean(meds), lwd = 3, col = "red")
 ```
 
-To approximate the sampling distribution of the median, we must first run a simulation of a standard normal distribution using the estimated parameters we found above. Using the same sample size, N = 201, we can then find the average median of the simulations and build a histogram to show the distribution of our sample medians. The average median found was `r mean(meds)`, very close to our estimated mean above and the true median of a standard normal distribution (median = 0).
+To approximate the sampling distribution of the median, we must first run a simulation of a standard normal distribution using the estimated parameters we found before. Using the same sample size, N = 201, we can then find the average median of the simulations and build a histogram to show the distribution of our sample medians. The average median found was `r mean(meds)`, very close to our estimated mean above and the true median of a standard normal distribution (median = 0).
 
 # 95% confidence interval
 
@@ -114,18 +109,16 @@ conf <- boot_ci(data)
 conf
 ```
 
-To calculate a 95% confidence interval from the approximated sampling distribution, we must use the `boot_ci()` function created below. This function uses simulation to create a dataset *sampdist* within the function. It then uses the `quantile()` function to chop off 2.5% from each end of the distribution, giving us the 95% confidence interval for our generated data. Using this function, we found the 95% confidence interval for the approximated sampling distribution to be `r conf`.
+To calculate a 95% confidence interval from the approximated sampling distribution, we must use the `boot_ci()` function created above. This function uses simulation to create a dataset *sampdist* within the function. It then uses the `quantile()` function to chop off 2.5% from each end of the distribution, giving us the 95% confidence interval for our generated data. Using this function, we found the 95% confidence interval for the approximated sampling distribution to be `r conf`.
 
 # Concept of Coverage Probability
-
-
 
 ```{r}
 capture_median <- function(ci){
   # Hard coded 0 as parameter of interest
   1*(ci[1] < 0 & 0 < ci[2])
 }
-M <- 50 # Make small, we are still testing the code
+M <- 100 # Make small, we are still testing the code
 captures <- rep(NA, M)
 for(i in 1:M){
   captures[i] <- 
@@ -135,10 +128,10 @@ capture_prob <- mean(captures)
 capture_prob
 ```
 
-
+The coverage probability of the simulation above was found to be `r capture_prob`. Meaning that in the simulation above, ran `r M` times, the true median of the population will be included in the simulation `r capture_prob*100`% of the time. As we can see from our number, it is slightly higher than 95% (our confidence interval) so our simulation performed slightly better. 
 
 # Possible Changes
 
-
+There are many different ways to change the simulation to learn more about the operating characteristics of your chosen method for constructing the 95% confidence interval. Examples are to test for a different parameter or use a different distribution when generating the dataset. You could also use a higher N for your generated dataset which would ultimately bring the coverage probability closer to 95%.
 
 
