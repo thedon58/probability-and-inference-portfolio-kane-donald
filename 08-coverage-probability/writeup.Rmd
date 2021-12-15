@@ -99,7 +99,7 @@ boot_ci <- function(data, summary = "median"){
   sm <- get(summary)
   sampdist <- rep(NA, R)
   for(i in 1:R){
-    b <- sample(data, length(data), replace = TRUE)
+    b <- median(data, length(data), replace = TRUE)
     sampdist[i] <- sm(b)
   }
   # Hard coded symmetric density interval
@@ -118,7 +118,7 @@ capture_median <- function(ci){
   # Hard coded 0 as parameter of interest
   1*(ci[1] < 0 & 0 < ci[2])
 }
-M <- 100 # Make small, we are still testing the code
+M <- 10 # Make small, we are still testing the code
 captures <- rep(NA, M)
 for(i in 1:M){
   captures[i] <- 
