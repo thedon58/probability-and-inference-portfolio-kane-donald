@@ -66,7 +66,7 @@ game <- function(N){
 }
 ```
 
-Probability that both happen, must multiply them.
+Probability that both happen, must multiply them. Independent events, no conditional probability.
 
 ```{r}
 strat1 <- NA
@@ -83,6 +83,8 @@ mean(s1goat) * mean(s2goat)
 
 
 **B**. Communicate the precision of your simulated probability in part **C** by calculating a **99\%** confidence interval.
+
+99% CI: (0.385, 0.501)
 
 ```{r}
 out <- NA
@@ -146,12 +148,12 @@ Consider a test for a rare genetic condition.  Let T+ denote a test result that 
 
 |    | D+           | D-        |   |
 |:---:|:---:|:---:|:---:|
-| T+ | cell:0.00085 |    0.04995|0.0508|
-|    | row:0.0167   |    0.983  |   |
-|    |col:0.85      |     0.05  |   |
-| T- | cell:0.00015 |  0.94905  | 0.9492  |
-|    | row:0.000158 |   0.999   |   |
-|    | col:0.15     |     0.95  |   |
+| T+ | cell: 0.00085 |    cell: 0.04995|0.0508|
+|    | row: 0.0167   |    row: 0.983  |   |
+|    |col: 0.85      |     col: 0.05  |   |
+| T- | cell: 0.00015 |  cell: 0.94905  | 0.9492  |
+|    | row: 0.000158 |   row: 0.999   |   |
+|    | col: 0.15     |     col: 0.95  |   |
 |    | 0.001        | 0.99      | 1  |
 
 **B**. Calculate the **negative** predictive value of the test, P(D-|T-).
@@ -159,16 +161,27 @@ Consider a test for a rare genetic condition.  Let T+ denote a test result that 
 P(disease is absent | test indicates disease is absent)
 
 P(A|B) = P(AnB) / P(B)
-P(D-|T-) = P(D- and T-) / P(T-)
-         = (0.94905) / (0.9492)
-         = 0.999
+
+P(D-|T-) 
+
+= P(D- and T-) / P(T-)
+
+= (0.94905) / (0.9492)
+
+= 0.999
 
 **A** Create a plot that shows how the **positive** predictive value as a function of the prevalence of disease, P(D+).
 
 P(A|B) = P(AnB) / P(B)
-P(D+|T+) = P(D+ and T+) / P(T+)
-         = (0.00085) / (0.0508)
-         = 0.0167
+
+P(D+|T+)
+
+= P(D+ and T+) / P(T+)
+
+= (0.00085) / (0.0508)
+
+= 0.0167
+
 Treat *prevalence* as a changing P(D+)
 
 P(D+|T+) = 0.85 x P(D+) / (0.85xP(D+) + (1 - P(D+)) - 0.95 x (1 - P(D+)))
@@ -183,7 +196,12 @@ plot(prevalence, ppv, xlab = "Prevalence", ylab = "PPV")
 
 Suppose the yearly hospital charges (in thousands of dollars) for a randomly selected Vanderbilt student is a mixture distribution.
 
-For 50% of students, the hospital charges will be $0.  For the remaining 50% of students, the hospital charges are a random variable described by a gamma distribution with shape = 2 and scale = 2.  (Again, in thousands of dollars.)   
+For 50% of students, the hospital charges will be $0.  For the remaining 50% of students, the hospital charges are a random variable described by a gamma distribution with shape = 2 and scale = 2.  (Again, in thousands of dollars.) 
+
+Discrete: countable
+bernoulli, binomial
+with replacement: n^k
+without: n choose k
 
 ```{r}
 hospital_charges <- function(N){
@@ -222,7 +240,7 @@ zero <- NA
 for (i in 1:10000) {
   sim <- hospital_charges(30) # 30 students
   sim <- ifelse(sim == 0, 1, 0) # if sim value = 0, value equals 1, else value equals 0
-  if (sum(sim) < 10) {
+  if (sum(sim) < 10) { 
     zero[i] <- 1
   } else {
     zero[i] <- 0
@@ -234,6 +252,10 @@ mean(zero)
 The probability that a randomly selected class of size 30 students will have less than 10 students with zero yearly hospital charges is around 2%.
 
 # 4. Continuous Distributions
+
+continuous: uncountable, focused on intervals
+uniform, normal
+
 
 **C.** Suppose diastolic blood pressure (DBP) follows a normal distribution with mean 80 mmHg and SD 15 mmHg. What is the probability that a randomly sampled personâ€™s DBP lies between 70 and 104 mmHg?
 
@@ -334,6 +356,8 @@ Log normal data are prevalent is biological systems and econometrics.
 
 Suppose a blood chemistry measure has a log normal distribution with $\mu$ = 0 and $\sigma$ = 1. Generate an histogram or density curve for the sampling distribution of the median when the sample size is 101.
 
+continuous probability distribution of a random variable whose logarithm is normally distributed.
+
 ```{r}
 meds <- NA
 for (i in 1:1000){
@@ -345,6 +369,11 @@ hist(sim, freq = FALSE, breaks = 20)
 
 
 **B.** Below is the CDF function for the kth order statistic when the underlying distribution is log normal with $\mu$ = 0 and $\sigma$ = 1.  Create a plot of the ECDF of the simulated sampling distribution generated in **C** and overlay the CDF using the function below.
+
+Order Statistics:
+k1 = min
+kn = max
+kn/2 = median
 
 ```{r}
 Fk <- function(x,k,n){
@@ -458,6 +487,8 @@ curve(
 ```
 
 **B.** Estimate the distribution of BMI for adult (age > 18) females using using the method of moment method with the gamma distribution. Create a plot of the estimated density function.
+
+calculate as many moments as there are parameters
 
 ```{r}
 bmiF <- d1 %>%
