@@ -66,7 +66,27 @@ game <- function(N){
 }
 ```
 
+```{r}
+R <- 5000
+strategy1 <- NA
+strategy2 <- NA
+for (i in 1:R){
+  strategy1[i]  <- game(4)[1]
+  strategy2[i] <- game(4)[2]
+}
+s1 <- ifelse(strategy1 == "goat", 1, 0)
+s2 <- ifelse(strategy2 == "goat", 1, 0)
+
+mean(s1) * mean(s2)
+```
+
+
 **B**. Communicate the precision of your simulated probability in part **C** by calculating a **99\%** confidence interval.
+
+```{r}
+
+```
+
 
 **A**. Let D(N) be the difference between the difference in probabilities between strategy 2 and strategy 1.
 
@@ -74,6 +94,11 @@ $$
 D(N) = P(\text{win strategy 2}|\text{N doors}) - P(\text{win strategy 1}|\text{N doors})
 $$
 Create a plot that shows how D changes as N increases.  Put N on the x-asis, ranging from 3 to 10.  Put D on the y-axis.
+
+```{r}
+
+```
+
 
 # 2. Probability
 
@@ -85,19 +110,25 @@ Consider a test for a rare genetic condition.  Let T+ denote a test result that 
 + P(T-|D-) = .95,  and 
 + P(D+) = 0.001
 
-|    | D+ | D- |   |
+|    | D+           | D-        |   |
 |:---:|:---:|:---:|:---:|
-| T+ |   |   |   |
-| T- |   |   |   |
-|   | 0.001  |   | 1  |
+| T+ | cell:0.00085 |    0.04995|0.0508|
+|    | row:0.0167   |    0.983  |
+|    |col:0.85      |     0.05  |
+| T- | cell:0.00015 |  0.94905  | 0.9492  |
+|    | row:0.000158 |   0.999   |
+|    | col:0.15     |     0.95  |
+|    | 0.001        | 0.99      | 1  |
 
 **B**. Calculate the **negative** predictive value of the test, P(D-|T-).
+
+P(D-|T-) = 0.999
 
 **A** Create a plot that shows how the **positive** predictive value as a function of the prevalence of disease, P(D+).
 
 ```{r, eval = FALSE}
-prevalence <- sequence(0.001, 0.1, length = 50)
-#ppv <- ???
+prevalence <- seq(0.001, 0.1, length = 50)
+ppv <- (0.85*prevalence) / ((0.85*prevalence) + (1-prevalence) - 0.95 * (1-prevalence))
 plot(prevalence, ppv, xlab = "Prevalence", ylab = "PPV")
 ```
 
@@ -117,13 +148,40 @@ hospital_charges <- function(N){
 
 **C**.  What is the 90th percentile for yearly hospital charges for a randomly selected Vanderbilt student?
 
+```{r}
+quantile(hospital_charges(5000), 0.9)
+```
+
+
 **B**.  Consider the **class** average yearly hospital charge for the students in a class of size 30.  Plot the density function or a simulated histogram of the class average yearly hospital charge.
 
+```{r}
+avgs <- NA
+for (i in 1:1000){
+  avgs[i] <- mean(hospital_charges(30))
+}
+
+hist(avgs, freq = FALSE, breaks = 25)
+abline(v = mean(avgs), col = "red", lw = 3)
+mean(avgs)
+```
+
+
 **A**.  What is the probability that a randomly selected class of size 30 students will have less than 10 students with zero yearly hospital charges?
+
+```{r}
+
+```
+
 
 # 4. Continuous Distributions
 
 **C.** Suppose diastolic blood pressure (DBP) follows a normal distribution with mean 80 mmHg and SD 15 mmHg. What is the probability that a randomly sampled personâ€™s DBP lies between 70 and 104 mmHg?
+
+```{r}
+pnorm(104, 80, 15) - pnorm(70, 80, 15)
+```
+
 
 **B.** Suppose a human femur was discovered that is 37 cm long.  Also suppose that using the NHANES data, researchers believe the distribution of femur bones, by sex, are distributed as follows:
 
@@ -134,14 +192,19 @@ hospital_charges <- function(N){
 
 Under the assumption that male and females are equally likely, what is the probability that the discovered femur was from a male?
 
+```{r}
+(dnorm(37, 40, 3.4) * 0.5) / ((dnorm(37, 40, 3.4) * 0.5) + dnorm(37, 36, 3.3) * 0.5)
+```
+Follows Bayes' rule. P(Male) = 0.5, P(Female) = 0.5
+
 **A.**  Continuing part **B**, generate a plot of P(femur from male | femur length = x).  Let femur length range from 25 to 50.
 
 ```{r}
 femur_length <- 25:50
-#prob_male <- ???
+prob_male <- 0.5 * dnorm(femur_length, 40, 3.4) / (0.5 * dnorm(femur_length, 40, 3.4) + 0.5 * dnorm(femur_length, 36, 3.3))
 plot.new()
 plot.window(xlim = c(25,50), ylim = c(0,1))
-#lines(femur_length, prob_male)
+lines(femur_length, prob_male)
 axis(1)
 axis(2)
 box()
@@ -164,9 +227,36 @@ hospital_charges <- function(N){
 
 **C.** What is E[yearly hospital charges]?
 
+```{r}
+mean(hospital_charges(1000))
+```
+
+
 **B.** Suppose Vanderbilt implements a cap of \$10,000 on yearly student hospital charges.  What is the mean yearly hospital charge under the new policy?
 
+```{r}
+sims <- NA
+for (i in 1:1000){
+  simulation <- hospital_charges(10000)
+  cap10 <- ifelse(simulation > 10, 10, simulation)
+  sims[i] <- mean(cap10)
+}
+mean(sims)
+```
+
+
 **A.** What is the variance of yearly hospital charge under the new policy?
+
+```{r}
+sims2 <- NA
+for (i in 1:1000){
+  simulation <- hospital_charges(10000)
+  cap10 <- ifelse(simulation > 10, 10, simulation)
+  sims2[i] <- var(cap10)
+}
+mean(sims2)
+```
+
 
 # 6. Transformations & Sampling Distributions
 
@@ -176,30 +266,162 @@ Log normal data are prevalent is biological systems and econometrics.
 
 Suppose a blood chemistry measure has a log normal distribution with $\mu$ = 0 and $\sigma$ = 1. Generate an histogram or density curve for the sampling distribution of the median when the sample size is 101.
 
+```{r}
+meds <- NA
+for (i in 1:1000){
+  sim <- rlnorm(101, 0, 1)
+  meds[i] <- median(sim)
+}
+hist(sim, freq = FALSE, breaks = 40)
+```
+
+
 **B.** Below is the CDF function for the kth order statistic when the underlying distribution is log normal with $\mu$ = 0 and $\sigma$ = 1.  Create a plot of the ECDF of the simulated sampling distribution generated in **C** and overlay the CDF using the function below.
 
 ```{r}
 Fk <- function(x,k,n){
   pbinom(k-1, n, plnorm(x), lower.tail = FALSE)
 }
+plot(ecdf(meds))
+curve(Fk(x, k = 51, n = 101),
+  add = TRUE,
+  col = "red",
+  lw = 3
+)
 ```
 
 **A.** Of the 25th, 50th, and 75th quantiles of the distribution from **B**, which will have the tightest 95% CI?  (Show the sampling distribution of each.)
+
+```{r}
+q25 <- NA
+q50 <- NA
+q75 <- NA
+for (i in 1:1000){
+  sim <- rlnorm(101, 0, 1)
+  q25[i] <- quantile(sim, 0.25)
+  q50[i] <- quantile(sim, 0.50)
+  q75[i] <- quantile(sim, 0.75)
+}
+```
+
+```{r}
+# 25th quantile
+hist(q25, breaks = 50)
+quantile(q25, c(0.025, 0.975))
+
+# 50th quantile
+hist(q50, breaks = 50)
+quantile(q50, c(0.025, 0.975))
+
+# 75th quantile
+hist(q75, breaks = 50)
+quantile(q75, c(0.025, 0.975))
+```
+The highest density of values happen between 1 and 0 towards the beginning of the distribution, so the 25th quantile would have a smaller 95% confidence interval
 
 # 7. Estimation of CDF and PDF from data
 
 The following code will load the NHANES data and select the first 500 rows.
 
 ```{r}
-Hmisc::getHdata(nhgh)
-d1 <- nhgh[1:500,]
+require(dplyr)
+require(data.table)
+d1 <- fread("https://biostat.app.vumc.org/wiki/pub/Main/DataSets/nhgh.tsv") %>% 
+  as.data.frame
+d1 <- d1[1:500,]
 ```
 
 **C.** Estimate the distribution of standing height for adult (age > 18) males using the MLE method with a normal distribution.  Create a plot of the estimated density function.
 
+```{r}
+heightM <- d1 %>%
+  filter(sex == "male") %>%
+  filter(age > 18)
+ht <- heightM$ht
+
+hist(heightM$ht) # estimate mean for fit()
+nLL <- function(mean, sd){
+  fs <- dnorm(
+        ht
+      , mean = mean
+      , sd = sd
+      , log = TRUE
+    ) 
+  -sum(fs)
+}
+
+fit <- mle(
+    nLL
+  , start = list(mean = 175, sd = 1)
+  , method = "L-BFGS-B"
+  , lower = c(0, 0.01)
+)
+
+mu_hat <- coef(fit)[[1]]
+mu_hat
+sigma_hat <- coef(fit)[[2]]
+sigma_hat
+
+hist(
+  ht,
+  freq = FALSE,
+  main = "Distribution of Height Data",
+  breaks = 50
+)
+curve(
+  dnorm(
+    x,
+    mu_hat,
+    sigma_hat),
+  lw = 3,
+  col = "red",
+  add = TRUE
+  )
+```
+
 **B.** Estimate the distribution of BMI for adult (age > 18) females using using the method of moment method with the gamma distribution. Create a plot of the estimated density function.
 
+```{r}
+bmiF <- d1 %>%
+  filter(sex == "female") %>%
+  filter(age > 18)
+
+bmi <- bmiF$bmi
+xbarh <- mean(bmi)
+stdevh <- var(bmi)
+(shape_hath <- xbarh^2/stdevh)
+(scale_hath <- stdevh/xbarh)
+
+hist(bmi,
+     freq = FALSE,
+     main = "Gamma Female BMI",
+     breaks = 75)
+curve(dgamma(x, shape = shape_hath, 
+            scale = scale_hath),
+      add = TRUE,
+      col = "red",
+      lwd = 3,
+      main = "Gamma Female BMI")
+```
+
 **A.** Estimate the distribution of creatinine (SCr) for adults (age > 18) using the kernel density method with a Gaussian kernel.  Create a plot of the estimated density function.
+
+kernel = different smoothing options
+adjust = smoothness tuning parameter
+
+```{r}
+scrA <- d1 %>%
+  filter(age > 18)
+
+scr <- bmiF$SCr
+scr <- na.exclude(scr)
+hist(scr,
+     freq = FALSE,
+     main = "",
+     breaks = 75)
+lines(density(scr, adjust = 1.5, kernel = "gaussian"), col = "blue", lwd = 4)
+
+```
 
 # 8. Sample from an estimated distribution
 
@@ -211,9 +433,53 @@ bwt <- MASS::birthwt
 
 **C.** Generate a 95% confidence interval for the mean birthweight of infants whose mothers **did** smoke during pregnancy using the bootstrap.
 
+Create new samples of size N by sampling rows with replacement.
+
+
+```{r}
+bwtSmoke <- bwt %>%
+  filter(smoke == 1)
+smoke <- bwtSmoke$bwt
+n_smoke <- length(smoke)
+M <- 5000
+out <- rep(NA, M)
+for(i in 1:M){
+  index <- sample.int(n_smoke, n_smoke, replace = TRUE)
+  out[i] <- smoke[index] %>% mean
+}
+quantile(out, c(0.025, 0.975))
+```
+
 **B.** Generate a 95% confidence interval for the mean birthweight of infants whose mothers **did** smoke during pregnancy using the Central Limit Theorem shortcut.
 
+```{r}
+bwtSmoke <- bwt %>%
+  filter(smoke == 1)
+smoke <- bwtSmoke$bwt
+
+R <- 2000
+means <- rep(NA, R)
+mean_mle <- mean(smoke, na.rm = TRUE)
+sd_mle <- sd(smoke, na.rm = TRUE)
+
+for(i in 1:R){
+  s <- rnorm(length(smoke), mean = mean_mle, sd = sd_mle)
+  means[i] <- mean(s)
+}
+alpha <- 0.05
+t0 <- quantile(means, c(alpha/2, 1-alpha/2))
+t0
+# With short cut
+
+t1 <- t.test(smoke)
+t1
+```
+
 **A.** Let $\mu_s$ be the mean birthweight of infants whose mothers smoked during pregnancy.  Let $\mu_{ns}$ be the mean for the non-smoking group.  Use simulation to calculate the 95% confidence interval for $\mu_s/\mu_{ns}$.
+
+```{r}
+
+```
 
 # 9.  Inference
 
@@ -229,6 +495,11 @@ bwt <- MASS::birthwt
 |:---|:---|:---|
 | Open | 600 |     1400 |
 | Lap  | 619 |     1381 |
+
+```{r}
+
+```
+
 
 
 **B.** Suppose that prior to the studies, the researchers established an equivalence threshold of 6 percentage points.  Using the confidence intervals, which studies (if any) showed a conclusive similarity between surgical approaches for the complication rate.  Explain why.
