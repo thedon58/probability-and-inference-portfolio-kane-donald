@@ -99,7 +99,7 @@ boot_ci <- function(data, summary = "median"){
   sm <- get(summary)
   sampdist <- rep(NA, R)
   for(i in 1:R){
-    b <- median(data, length(data), replace = TRUE)
+    b <- sample(data, length(data), replace = TRUE)
     sampdist[i] <- sm(b)
   }
   # Hard coded symmetric density interval
